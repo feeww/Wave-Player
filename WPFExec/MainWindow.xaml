@@ -1,0 +1,63 @@
+﻿<Window x:Class="Mp3Player.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Wave Player" Height="546" Width="632"
+        Background="#1E1E3F" Foreground="White"
+        Icon="/assets/icon.ico">
+
+    <Grid Margin="10">
+        <Border Background="#1E1E3F" CornerRadius="10">
+            <StackPanel Orientation="Vertical" Margin="20">
+
+                <!-- Логотип -->
+                <TextBlock Text="WAVE" Foreground="#00D1FF" FontSize="28"
+                           FontWeight="Bold" HorizontalAlignment="Center"/>
+
+                <!-- Список треків + кнопка видалення -->
+                <StackPanel Orientation="Horizontal">
+                    <ListBox Name="TrackList" Height="220" Width="519" 
+                             Background="#252545" Foreground="White"
+                             BorderBrush="Transparent" SelectionChanged="TrackList_SelectionChanged"/>
+                    <Button Content="🗑" Click="DeleteTrack_Click" Style="{StaticResource DeleteButton}" 
+                            Margin="5" Height="46" Width="44" RenderTransformOrigin="-11.533,4.876"/>
+                </StackPanel>
+
+                <!-- Прогресбар -->
+                <StackPanel Orientation="Horizontal" Margin="10,10,0,0">
+                    <TextBlock Name="CurrentTime" Foreground="White" Width="40" Text="0:00"/>
+                    <Slider Name="ProgressBar" Width="445" Minimum="0" Maximum="100" Background="Transparent"
+        PreviewMouseDown="ProgressBar_MouseDown"
+        ValueChanged="ProgressBar_ValueChanged"
+        Style="{StaticResource ProgressBarStyle}" 
+        IsMoveToPointEnabled="True" Height="13"/>
+
+                    <TextBlock Name="TotalTime" Foreground="White" Width="40" Text="0:00"/>
+                </StackPanel>
+
+                <!-- Гучність -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Height="15" Width="336">
+                    <TextBlock Foreground="White" Text="🔊"/>
+                    <Slider x:Name="VolumeSlider" Width="350" Minimum="0" Maximum="1" Value="0.5"
+                            ValueChanged="VolumeSlider_ValueChanged"
+                            Style="{StaticResource VolumeSliderStyle}" Height="6"/>
+                </StackPanel>
+
+                <!-- Основні кнопки управління -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                    <Button Content="⏮" Click="Previous_Click" Style="{StaticResource ControlButton}" Margin="3"/>
+                    <Button Name="PlayButton" Content="▶" Click="Play_Click" Style="{StaticResource ControlButton}"/>
+                    <Button Name="PauseButton" Content="⏸" Click="Pause_Click" Style="{StaticResource ControlButton}" Visibility="Collapsed"/>
+                    <Button Content="⏭" Click="Next_Click" Style="{StaticResource ControlButton}" Margin="3"/>
+                </StackPanel>
+
+                <!-- Додаткові кнопки -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="-7">
+                    <Button Content="🔀" Click="Shuffle_Click" Style="{StaticResource ControlButton}" Margin="5"/>
+                    <Button Content="➕" Click="AddFiles_Click" Style="{StaticResource ControlButton}" Margin="5"/>
+                </StackPanel>
+
+                <MediaElement Name="MediaPlayer" LoadedBehavior="Manual" MediaEnded="MediaPlayer_MediaEnded"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
