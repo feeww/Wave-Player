@@ -1,9 +1,8 @@
-﻿<Application x:Class="Mp3Player.App"
+﻿<Application x:Class="Wave_Player.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- Volume Slider Style -->
         <Style x:Key="VolumeSlider" TargetType="Slider">
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="1"/>

@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace WPFExec;
+namespace Wave_Player;
 
 /// <summary>
 /// Interaction logic for App.xaml

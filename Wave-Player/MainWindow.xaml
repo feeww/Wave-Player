@@ -1,4 +1,4 @@
-﻿<Window x:Class="Mp3Player.MainWindow"
+﻿<Window x:Class="Wave_Player.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Wave Player" Height="700" Width="1000"
@@ -14,7 +14,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-    <!-- Title Bar -->
         <Grid Grid.Row="0" Background="Transparent" MouseDown="TitleBar_MouseDown">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{StaticResource WindowButton}" Content="─" Click="Minimize_Click"/>
@@ -23,21 +22,18 @@
             </StackPanel>
         </Grid>
 
-        <!-- Main Content -->
         <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <!-- Назва плеєра з іконкою -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,20">
                 <TextBlock Text="WAVE PLAYER" Foreground="#00D1FF" FontSize="32" FontWeight="Bold"/>
                 <Image Source="/assets/favicon.ico" Width="32" Height="32" Margin="10,0,10,0"/>
             </StackPanel>
 
 
-            <!-- Playlist -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -56,7 +52,6 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Player Controls -->
             <Border Grid.Row="2" Background="#12123A" CornerRadius="10" Margin="0,20,0,0">
                 <Grid Margin="15">
                     <Grid.RowDefinitions>
@@ -65,7 +60,6 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Progress -->
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -81,7 +75,6 @@
                         <TextBlock Name="TotalTime" Grid.Column="2" Foreground="#B0B0FF" Text="0:00"/>
                     </Grid>
 
-                    <!-- Controls -->
                     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10">
                         <Button Content="⏮" Style="{StaticResource PlayerControlButton}" Click="Previous_Click"/>
                         <Button Name="PlayButton" Content="▶" Style="{StaticResource PlayPauseButton}" Click="Play_Click"/>
@@ -89,7 +82,6 @@
                         <Button Content="⏭" Style="{StaticResource PlayerControlButton}" Click="Next_Click"/>
                     </StackPanel>
 
-                    <!-- Volume -->
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
                         <TextBlock Text="🔊" Foreground="#B0B0FF"/>
                         <Slider x:Name="VolumeSlider" Width="200"

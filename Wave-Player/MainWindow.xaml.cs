@@ -7,10 +7,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Win32;
 
-namespace Mp3Player
+namespace Wave_Player
 {
     public partial class MainWindow : Window
     {
@@ -141,10 +142,8 @@ namespace Mp3Player
         {
             Button shuffleButton = (Button)sender;
 
-            // Змінюємо стан шафлу
             _isShuffleEnabled = !_isShuffleEnabled;
 
-            // Оновлюємо стиль кнопки
             if (_isShuffleEnabled)
             {
                 shuffleButton.Background = new System.Windows.Media.LinearGradientBrush(
