@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SliderValueToWidthConverter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="assets\favicon.ico" />
     <None Remove="assets\icon.ico" />
   </ItemGroup>
@@ -19,7 +23,6 @@
 
   <ItemGroup>
     <Resource Include="assets\favicon.ico" />
-    <Resource Include="assets\icon.ico" />
   </ItemGroup>
 
 </Project>

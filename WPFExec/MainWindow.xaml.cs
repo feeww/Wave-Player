@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 using System.Windows.Threading;
 using Microsoft.Win32;
 
@@ -17,27 +19,34 @@ namespace Mp3Player
         private DispatcherTimer _timer;
         private bool _isDraggingProgress = false;
         private Random _random = new Random();
+        private bool _isShuffleEnabled = false;
+        private bool _isRepeatEnabled = false;
 
         public MainWindow()
         {
+            MediaPlayer = new MediaElement();
             InitializeComponent();
             LoadPlaylist();
             MediaPlayer.Volume = VolumeSlider.Value;
-
-            // Таймер для оновлення прогресбару
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += UpdateProgress;
         }
 
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
+        }
+
+        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+        private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
+        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
         private void AddFiles_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Multiselect = true,
-                Filter = "MP3 Files (*.mp3)|*.mp3"
-            };
-
+            OpenFileDialog openFileDialog = new() { Multiselect = true, Filter = "MP3 Files (*.mp3)|*.mp3" };
             if (openFileDialog.ShowDialog() == true)
             {
                 foreach (string file in openFileDialog.FileNames)
@@ -48,27 +57,38 @@ namespace Mp3Player
                         TrackList.Items.Add(System.IO.Path.GetFileName(file));
                     }
                 }
+                SavePlaylist();
+            }
+        }
 
+        private void DeleteTrack_Click(object sender, RoutedEventArgs e)
+        {
+            if (TrackList.SelectedIndex != -1)
+            {
+                int index = TrackList.SelectedIndex;
+                _trackPaths.RemoveAt(index);
+                TrackList.Items.RemoveAt(index);
                 SavePlaylist();
             }
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)
         {
-            if (MediaPlayer.Source == null && TrackList.SelectedIndex >= 0)
+            if (TrackList.SelectedIndex >= 0)
             {
-                MediaPlayer.Source = new Uri(_trackPaths[TrackList.SelectedIndex]);
-                MediaPlayer.Play();
-                _timer.Start();
-            }
-            else
-            {
-                MediaPlayer.Play();
-                _timer.Start();
-            }
+                string selectedTrack = _trackPaths[TrackList.SelectedIndex];
 
-            PlayButton.Visibility = Visibility.Collapsed;
-            PauseButton.Visibility = Visibility.Visible;
+                if (MediaPlayer.Source == null || MediaPlayer.Source.ToString() != selectedTrack)
+                {
+                    MediaPlayer.Source = new Uri(selectedTrack);
+                }
+
+                MediaPlayer.Play();
+                _timer.Start();
+
+                PlayButton.Visibility = Visibility.Collapsed;
+                PauseButton.Visibility = Visibility.Visible;
+            }
         }
 
         private void Pause_Click(object sender, RoutedEventArgs e)
@@ -80,61 +100,139 @@ namespace Mp3Player
             PauseButton.Visibility = Visibility.Collapsed;
         }
 
-
-        private void Shuffle_Click(object sender, RoutedEventArgs e)
-        {
-            if (_trackPaths.Count > 1)
-            {
-                int randomIndex = _random.Next(0, _trackPaths.Count);
-                TrackList.SelectedIndex = randomIndex;
-                Play_Click(null, null);
-            }
-        }
-
-        private bool _previousClickedOnce = false;
-
         private void Previous_Click(object sender, RoutedEventArgs e)
         {
             if (TrackList.SelectedIndex >= 0)
             {
-                if (MediaPlayer.Position.TotalSeconds >= 5 && !_previousClickedOnce)
+                if (MediaPlayer.Position.TotalSeconds >= 5)
                 {
-                    // Якщо трек грав більше 5 секунд - спочатку обнуляємо його
                     MediaPlayer.Position = TimeSpan.Zero;
-                    _previousClickedOnce = true;
                 }
                 else if (TrackList.SelectedIndex > 0)
                 {
-                    // Якщо натиснули вдруге або трек був менше 5 секунд – переходимо до попереднього
                     TrackList.SelectedIndex--;
-                    Play_Click(null, null);
-                    _previousClickedOnce = false;
                 }
-                else
-                {
-                    // Якщо це перший трек у списку - просто перемотуємо його
-                    MediaPlayer.Position = TimeSpan.Zero;
-                }
+                Play_Click(null, null);
             }
         }
 
         private void Next_Click(object sender, RoutedEventArgs e)
         {
-            if (TrackList.SelectedIndex < _trackPaths.Count - 1)
+            if (_trackPaths.Count > 1)
+            {
+                if (_isShuffleEnabled)
+                {
+                    int newIndex;
+                    do
+                    {
+                        newIndex = _random.Next(_trackPaths.Count);
+                    } while (newIndex == TrackList.SelectedIndex);
+                    TrackList.SelectedIndex = newIndex;
+                }
+                else if (TrackList.SelectedIndex < _trackPaths.Count - 1)
+                {
+                    TrackList.SelectedIndex++;
+                }
+                Play_Click(null, null);
+            }
+        }
+
+        private void Shuffle_Click(object sender, RoutedEventArgs e)
+        {
+            Button shuffleButton = (Button)sender;
+
+            // Змінюємо стан шафлу
+            _isShuffleEnabled = !_isShuffleEnabled;
+
+            // Оновлюємо стиль кнопки
+            if (_isShuffleEnabled)
+            {
+                shuffleButton.Background = new System.Windows.Media.LinearGradientBrush(
+                    System.Windows.Media.Color.FromRgb(0, 209, 255),
+                    System.Windows.Media.Color.FromRgb(0, 128, 255),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
+            }
+            else
+            {
+                shuffleButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#22224F"));
+            }
+
+        }
+
+        private void Repeat_Click(object sender, RoutedEventArgs e)
+        {
+            Button repeatButton = (Button)sender;
+
+            _isRepeatEnabled = !_isRepeatEnabled;
+
+            if (_isRepeatEnabled)
+            {
+                repeatButton.Background = new System.Windows.Media.LinearGradientBrush(
+                    System.Windows.Media.Color.FromRgb(0, 209, 255),
+                    System.Windows.Media.Color.FromRgb(0, 128, 255),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
+            }
+            else
+            {
+                repeatButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#22224F"));
+            }
+        }
+
+        private void MediaPlayer_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            if (_isRepeatEnabled)
+            {
+                MediaPlayer.Position = TimeSpan.Zero;
+                MediaPlayer.Play();
+            }
+            else if (_isShuffleEnabled && _trackPaths.Count > 1)
+            {
+                int newIndex;
+                do
+                {
+                    newIndex = _random.Next(_trackPaths.Count);
+                } while (newIndex == TrackList.SelectedIndex);
+
+                TrackList.SelectedIndex = newIndex;
+                Play_Click(null, null);
+            }
+            else if (TrackList.SelectedIndex < _trackPaths.Count - 1)
             {
                 TrackList.SelectedIndex++;
                 Play_Click(null, null);
             }
         }
 
+        private void UpdateProgress(object sender, EventArgs e)
+        {
+            if (MediaPlayer.NaturalDuration.HasTimeSpan && !_isDraggingProgress)
+            {
+                ProgressBar.Maximum = MediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+                ProgressBar.Value = MediaPlayer.Position.TotalSeconds;
+                CurrentTime.Text = MediaPlayer.Position.ToString(@"m\:ss");
+                TotalTime.Text = MediaPlayer.NaturalDuration.TimeSpan.ToString(@"m\:ss");
+            }
+        }
+
         private void TrackList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (TrackList.SelectedIndex >= 0)
+            if (TrackList.SelectedIndex != -1)
             {
-                MediaPlayer.Source = new Uri(_trackPaths[TrackList.SelectedIndex]);
-                MediaPlayer.Play();
-                _timer.Start();
+                Play_Click(null, null);
             }
+        }
+
+        private void ProgressBar_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _isDraggingProgress = true;
+        }
+
+        private void ProgressBar_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            MediaPlayer.Position = TimeSpan.FromSeconds(ProgressBar.Value);
+            _isDraggingProgress = false;
         }
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -145,86 +243,28 @@ namespace Mp3Player
             }
         }
 
-        private void ProgressBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void LoadPlaylist()
         {
-            if (_isDraggingProgress)
+            if (File.Exists(_saveFilePath))
             {
-                MediaPlayer.Position = TimeSpan.FromSeconds(ProgressBar.Value);
-            }
-        }
-
-        private void ProgressBar_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            double position = e.GetPosition(ProgressBar).X / ProgressBar.ActualWidth;
-            MediaPlayer.Position = TimeSpan.FromSeconds(ProgressBar.Maximum * position);
-        }
-
-        private void DeleteTrack_Click(object sender, RoutedEventArgs e)
-        {
-            if (TrackList.SelectedIndex != -1)
-            {
-                int index = TrackList.SelectedIndex;
-                _trackPaths.RemoveAt(index);
-                TrackList.Items.RemoveAt(index);
-
-                // Якщо після видалення список порожній - зупиняємо плеєр
-                if (TrackList.Items.Count == 0)
+                try
                 {
-                    MediaPlayer.Stop();
+                    _trackPaths = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_saveFilePath)) ?? new List<string>();
+                    foreach (var path in _trackPaths)
+                    {
+                        TrackList.Items.Add(Path.GetFileName(path));
+                    }
+                }
+                catch (Exception)
+                {
+                    _trackPaths = new List<string>();
                 }
             }
         }
-
 
         private void SavePlaylist()
         {
             File.WriteAllText(_saveFilePath, JsonSerializer.Serialize(_trackPaths));
         }
-
-        private void LoadPlaylist()
-        {
-            if (TrackList == null) return; // Запобігає NullReferenceException
-
-            if (File.Exists(_saveFilePath))
-            {
-                _trackPaths = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_saveFilePath)) ?? new List<string>();
-                foreach (string path in _trackPaths)
-                {
-                    if (File.Exists(path)) // Перевіряємо, чи файл існує
-                        TrackList.Items.Add(System.IO.Path.GetFileName(path));
-                }
-            }
-        }
-
-        private void MediaPlayer_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            PauseButton.Visibility = Visibility.Collapsed;
-            PlayButton.Visibility = Visibility.Visible;
-            // Якщо це не останній трек у списку – переключаємось на наступний
-            if (TrackList.SelectedIndex < _trackPaths.Count - 1)
-            {
-                TrackList.SelectedIndex++;
-                Play_Click(null, null);
-            }
-            else
-            {
-                // Якщо це останній трек – можна або зупинити, або почати спочатку
-                TrackList.SelectedIndex = 0;
-                Play_Click(null, null);
-            }
-        }
-
-        private void UpdateProgress(object sender, EventArgs e)
-        {
-            if (!_isDraggingProgress && MediaPlayer.NaturalDuration.HasTimeSpan)
-            {
-                ProgressBar.Maximum = MediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
-                ProgressBar.Value = MediaPlayer.Position.TotalSeconds;
-
-                CurrentTime.Text = TimeSpan.FromSeconds(ProgressBar.Value).ToString(@"m\:ss");
-                TotalTime.Text = MediaPlayer.NaturalDuration.TimeSpan.ToString(@"m\:ss");
-            }
-        }
-
     }
 }
