@@ -41,7 +41,6 @@ namespace Wave_Player
             }
             catch (Exception ex)
             {
-                // Handle exceptions if needed
                 Console.WriteLine($"Error saving settings: {ex.Message}");
             }
         }

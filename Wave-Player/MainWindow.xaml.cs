@@ -21,7 +21,8 @@ namespace Wave_Player
         private bool _isRepeatEnabled = false;
         private SettingsC _settings;
         private FileSystemWatcher _fileWatcher;
-        private readonly string _saveFilePath = "playlist.json"; // Add this line
+        private readonly string _saveFilePath = "playlist.json";
+        private readonly string _lastTrackFilePath = "lastTrack.json"; 
 
         public MainWindow()
         {
@@ -31,13 +32,14 @@ namespace Wave_Player
             InitializeFileWatcher();
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += UpdateProgress;
+            LoadLastTrack(); 
         }
 
         private void LoadSettings()
         {
             _settings = SettingsC.Load();
             MediaPlayer.Volume = _settings.DefaultVolume;
-            VolumeSlider.Value = _settings.DefaultVolume; // Ensure VolumeSlider is set to the loaded volume
+            VolumeSlider.Value = _settings.DefaultVolume; 
 
             LoadMusicFiles();
         }
@@ -134,6 +136,8 @@ namespace Wave_Player
 
                 PlayButton.Visibility = Visibility.Collapsed;
                 PauseButton.Visibility = Visibility.Visible;
+
+                SaveLastTrack(); // Add this line
             }
         }
 
@@ -259,6 +263,10 @@ namespace Wave_Player
                 TrackList.SelectedIndex++;
                 Play_Click(null, null);
             }
+            else
+            {
+                SaveLastTrack(); 
+            }
         }
 
         private void UpdateProgress(object sender, EventArgs e)
@@ -321,6 +329,28 @@ namespace Wave_Player
         private void SavePlaylist()
         {
             File.WriteAllText(_saveFilePath, JsonSerializer.Serialize(_trackPaths));
+        }
+
+        private void LoadLastTrack() 
+        {
+            if (_settings.RememberLastTrack && File.Exists(_lastTrackFilePath))
+            {
+                string lastTrack = File.ReadAllText(_lastTrackFilePath);
+                if (_trackPaths.Contains(lastTrack))
+                {
+                    TrackList.SelectedIndex = _trackPaths.IndexOf(lastTrack);
+                    Play_Click(null, null);
+                }
+            }
+        }
+
+        private void SaveLastTrack() 
+        {
+            if (_settings.RememberLastTrack && TrackList.SelectedIndex >= 0)
+            {
+                string currentTrack = _trackPaths[TrackList.SelectedIndex];
+                File.WriteAllText(_lastTrackFilePath, currentTrack);
+            }
         }
     }
 }

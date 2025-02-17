@@ -13,14 +13,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Title Bar -->
         <Grid Grid.Row="0" Background="Transparent" MouseDown="TitleBar_MouseDown">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{StaticResource WindowButton}" Content="×" Click="Close_Click"/>
             </StackPanel>
         </Grid>
 
-        <!-- Main Content -->
         <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -28,22 +26,19 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Header -->
             <TextBlock Grid.Row="0" 
-                       Text="SETTINGS" 
+                       Text="SETTINGS v1.2" 
                        Foreground="#00D1FF" 
                        FontSize="24" 
                        FontWeight="Bold"
                        Margin="0,0,0,20"/>
 
-            <!-- Settings Content -->
             <ScrollViewer Grid.Row="1">
                 <Border Background="#12123A" 
                         Margin="0,0,0,20" 
                         Padding="15"
                         CornerRadius="10">
                     <StackPanel>
-                        <!-- Audio Settings -->
                         <TextBlock Text="Audio" 
                                  Foreground="#00D1FF" 
                                  FontSize="18" 
@@ -70,7 +65,6 @@
                                    Value="2"/>
                         </StackPanel>
 
-                        <!-- Playback Settings -->
                         <TextBlock Text="Playback" 
                                  Foreground="#00D1FF" 
                                  FontSize="18" 
@@ -92,7 +86,6 @@
                                 Foreground="#B0B0FF"
                                 Margin="0,0,0,10"/>
 
-                        <!-- File Settings -->
                         <TextBlock Text="File Handling" 
                                  Foreground="#00D1FF" 
                                  FontSize="18" 
@@ -111,9 +104,10 @@
                                 <TextBox x:Name="MusicFolderTextBox"
                                         Background="#0A0A1E" 
                                         Foreground="#B0B0FF" 
-                                        BorderBrush="#00D1FF"/>
+                                        BorderBrush="#00D1FF"
+                                        Height="20"/>
                                 <Button Grid.Column="1" 
-                                        Content="Browse" 
+                                        Content="📁" 
                                         Margin="5,0,0,0"
                                         Style="{StaticResource PlayerControlButton}"
                                         Click="BrowseButton_Click"/>
@@ -123,15 +117,14 @@
                 </Border>
             </ScrollViewer>
 
-            <!-- Footer Buttons -->
             <StackPanel Grid.Row="2" 
                         Orientation="Horizontal" 
                         HorizontalAlignment="Right">
-                <Button Content="Apply" 
+                <Button Content="✅" 
                         Style="{StaticResource PlayerControlButton}" 
                         Click="ApplyButton_Click"
                         Margin="0,0,10,0"/>
-                <Button Content="Cancel" 
+                <Button Content="❎" 
                         Style="{StaticResource PlayerControlButton}"
                         Click="CancelButton_Click"/>
             </StackPanel>

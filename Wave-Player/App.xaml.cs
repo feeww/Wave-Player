@@ -18,7 +18,6 @@ namespace Wave_Player
 
         private void LoadSettings()
         {
-            // Load settings if needed, this is optional if settings are loaded in the MainWindow or SettingsWindow
         }
 
         private void SaveSettings()
