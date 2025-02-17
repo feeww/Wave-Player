@@ -1,0 +1,140 @@
+﻿<Window x:Class="Wave_Player.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings" Height="500" Width="400"
+        Background="#0A0A1E"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title Bar -->
+        <Grid Grid.Row="0" Background="Transparent" MouseDown="TitleBar_MouseDown">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource WindowButton}" Content="×" Click="Close_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Grid.Row="0" 
+                       Text="SETTINGS" 
+                       Foreground="#00D1FF" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       Margin="0,0,0,20"/>
+
+            <!-- Settings Content -->
+            <ScrollViewer Grid.Row="1">
+                <Border Background="#12123A" 
+                        Margin="0,0,0,20" 
+                        Padding="15"
+                        CornerRadius="10">
+                    <StackPanel>
+                        <!-- Audio Settings -->
+                        <TextBlock Text="Audio" 
+                                 Foreground="#00D1FF" 
+                                 FontSize="18" 
+                                 FontWeight="Bold"
+                                 Margin="0,0,0,10"/>
+
+                        <StackPanel Margin="0,0,0,15">
+                            <TextBlock Text="Default Volume" 
+                                     Foreground="#B0B0FF" 
+                                     Margin="0,0,0,5"/>
+                            <Slider x:Name="DefaultVolumeSlider"
+                                   Style="{StaticResource VolumeSlider}"
+                                   Maximum="1" 
+                                   Value="0.5"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,0,0,15">
+                            <TextBlock Text="Crossfade Duration (seconds)" 
+                                     Foreground="#B0B0FF" 
+                                     Margin="0,0,0,5"/>
+                            <Slider x:Name="CrossfadeSlider"
+                                   Style="{StaticResource VolumeSlider}"
+                                   Maximum="10" 
+                                   Value="2"/>
+                        </StackPanel>
+
+                        <!-- Playback Settings -->
+                        <TextBlock Text="Playback" 
+                                 Foreground="#00D1FF" 
+                                 FontSize="18" 
+                                 FontWeight="Bold"
+                                 Margin="0,10,0,10"/>
+
+                        <CheckBox x:Name="AutoPlayCheckBox"
+                                Content="Auto-play when track added" 
+                                Foreground="#B0B0FF"
+                                Margin="0,0,0,10"/>
+
+                        <CheckBox x:Name="RememberTrackCheckBox"
+                                Content="Remember last played track" 
+                                Foreground="#B0B0FF"
+                                Margin="0,0,0,10"/>
+
+                        <CheckBox x:Name="NotificationsCheckBox"
+                                Content="Show notifications" 
+                                Foreground="#B0B0FF"
+                                Margin="0,0,0,10"/>
+
+                        <!-- File Settings -->
+                        <TextBlock Text="File Handling" 
+                                 Foreground="#00D1FF" 
+                                 FontSize="18" 
+                                 FontWeight="Bold"
+                                 Margin="0,10,0,10"/>
+
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="Default Music Folder" 
+                                     Foreground="#B0B0FF" 
+                                     Margin="0,0,0,5"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="MusicFolderTextBox"
+                                        Background="#0A0A1E" 
+                                        Foreground="#B0B0FF" 
+                                        BorderBrush="#00D1FF"/>
+                                <Button Grid.Column="1" 
+                                        Content="Browse" 
+                                        Margin="5,0,0,0"
+                                        Style="{StaticResource PlayerControlButton}"
+                                        Click="BrowseButton_Click"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </ScrollViewer>
+
+            <!-- Footer Buttons -->
+            <StackPanel Grid.Row="2" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right">
+                <Button Content="Apply" 
+                        Style="{StaticResource PlayerControlButton}" 
+                        Click="ApplyButton_Click"
+                        Margin="0,0,10,0"/>
+                <Button Content="Cancel" 
+                        Style="{StaticResource PlayerControlButton}"
+                        Click="CancelButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

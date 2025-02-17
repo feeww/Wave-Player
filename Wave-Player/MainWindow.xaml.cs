@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -16,21 +14,68 @@ namespace Wave_Player
     public partial class MainWindow : Window
     {
         private List<string> _trackPaths = new();
-        private readonly string _saveFilePath = "playlist.json";
         private DispatcherTimer _timer;
         private bool _isDraggingProgress = false;
         private Random _random = new Random();
         private bool _isShuffleEnabled = false;
         private bool _isRepeatEnabled = false;
+        private SettingsC _settings;
+        private FileSystemWatcher _fileWatcher;
+        private readonly string _saveFilePath = "playlist.json"; // Add this line
 
         public MainWindow()
         {
             MediaPlayer = new MediaElement();
             InitializeComponent();
-            LoadPlaylist();
-            MediaPlayer.Volume = VolumeSlider.Value;
+            LoadSettings();
+            InitializeFileWatcher();
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += UpdateProgress;
+        }
+
+        private void LoadSettings()
+        {
+            _settings = SettingsC.Load();
+            MediaPlayer.Volume = _settings.DefaultVolume;
+            VolumeSlider.Value = _settings.DefaultVolume; // Ensure VolumeSlider is set to the loaded volume
+
+            LoadMusicFiles();
+        }
+
+        private void InitializeFileWatcher()
+        {
+            if (Directory.Exists(_settings.DefaultMusicFolder))
+            {
+                _fileWatcher = new FileSystemWatcher(_settings.DefaultMusicFolder, "*.mp3");
+                _fileWatcher.Created += OnFileChanged;
+                _fileWatcher.Deleted += OnFileChanged;
+                _fileWatcher.Renamed += OnFileChanged;
+                _fileWatcher.EnableRaisingEvents = true;
+            }
+        }
+
+        private void OnFileChanged(object sender, FileSystemEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                LoadMusicFiles();
+            });
+        }
+
+        private void LoadMusicFiles()
+        {
+            _trackPaths.Clear();
+            TrackList.Items.Clear();
+
+            if (Directory.Exists(_settings.DefaultMusicFolder))
+            {
+                string[] mp3Files = Directory.GetFiles(_settings.DefaultMusicFolder, "*.mp3");
+                foreach (string file in mp3Files)
+                {
+                    _trackPaths.Add(file);
+                    TrackList.Items.Add(Path.GetFileName(file));
+                }
+            }
         }
 
         private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -54,11 +99,9 @@ namespace Wave_Player
                 {
                     if (!_trackPaths.Contains(file))
                     {
-                        _trackPaths.Add(file);
-                        TrackList.Items.Add(System.IO.Path.GetFileName(file));
+                        File.Copy(file, Path.Combine(_settings.DefaultMusicFolder, Path.GetFileName(file)), true);
                     }
                 }
-                SavePlaylist();
             }
         }
 
@@ -67,9 +110,11 @@ namespace Wave_Player
             if (TrackList.SelectedIndex != -1)
             {
                 int index = TrackList.SelectedIndex;
-                _trackPaths.RemoveAt(index);
-                TrackList.Items.RemoveAt(index);
-                SavePlaylist();
+                string filePath = _trackPaths[index];
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
             }
         }
 
@@ -146,7 +191,7 @@ namespace Wave_Player
 
             if (_isShuffleEnabled)
             {
-                shuffleButton.Background = new System.Windows.Media.LinearGradientBrush(
+                shuffleButton.Background = new LinearGradientBrush(
                     System.Windows.Media.Color.FromRgb(0, 209, 255),
                     System.Windows.Media.Color.FromRgb(0, 128, 255),
                     new System.Windows.Point(0, 0),
@@ -156,7 +201,6 @@ namespace Wave_Player
             {
                 shuffleButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#22224F"));
             }
-
         }
 
         private void Repeat_Click(object sender, RoutedEventArgs e)
@@ -176,6 +220,19 @@ namespace Wave_Player
             else
             {
                 repeatButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#22224F"));
+            }
+        }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
+            settingsWindow.ShowDialog();
+
+            if (settingsWindow.DialogResult == true)
+            {
+                MediaPlayer.Volume = _settings.DefaultVolume;
+                VolumeSlider.Value = _settings.DefaultVolume; // Ensure VolumeSlider is updated after settings are applied
             }
         }
 

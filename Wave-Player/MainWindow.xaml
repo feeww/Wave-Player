@@ -49,6 +49,8 @@
                     <Button Content="➕" Style="{StaticResource PlayerControlButton}" Click="AddFiles_Click"/>
                     <Button Content="🔀" Style="{StaticResource PlayerControlButton}" Click="Shuffle_Click"/>
                     <Button Content="🔁" Style="{StaticResource PlayerControlButton}" Click="Repeat_Click"/>
+                    <Button Content="⚙️" Style="{StaticResource PlayerControlButton}" Click="Settings_Click"/>
+
                 </StackPanel>
             </Grid>
 
