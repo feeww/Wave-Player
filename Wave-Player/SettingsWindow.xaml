@@ -2,23 +2,291 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Settings" Height="500" Width="400"
-        Background="#0A0A1E"
+        Background="#1E1E1E"
         WindowStyle="None"
         AllowsTransparency="True"
         ResizeMode="NoResize">
 
+    <Window.Resources>
+        <!-- Modern Slider Style -->
+        <Style x:Key="ModernSlider" TargetType="Slider">
+            <Setter Property="Foreground" Value="#0080FF"/>
+            <Setter Property="Background" Value="#404040"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Border x:Name="TrackBackground" 
+                                    Grid.Row="1" 
+                                    Height="4" 
+                                    Background="{TemplateBinding Background}" 
+                                    CornerRadius="2"/>
+                            <Track x:Name="PART_Track" Grid.Row="1">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="4" 
+                                                        Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Slider}}" 
+                                                        CornerRadius="2"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Width="16" Height="16">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Grid>
+                                                    <Ellipse Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Slider}}"/>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Gradient Button Style -->
+        <Style x:Key="ModernButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <!-- Button Background with Gradient -->
+                            <Border x:Name="backgroundBorder" 
+                            CornerRadius="10">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#0080FF" Offset="0"/>
+                                        <GradientStop Color="#00D1FF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+
+                                <!-- Glass Effect Overlay -->
+                                <Border.Effect>
+                                    <BlurEffect Radius="0"/>
+                                </Border.Effect>
+                            </Border>
+
+                            <!-- Highlight Overlay -->
+                            <Border x:Name="highlightBorder"
+                            CornerRadius="10"
+                            Opacity="0">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#50FFFFFF" Offset="0"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+
+                            <!-- Content -->
+                            <ContentPresenter x:Name="contentPresenter"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    TextBlock.FontWeight="{TemplateBinding FontWeight}"
+                                    Margin="{TemplateBinding Padding}">
+                                <ContentPresenter.Effect>
+                                    <DropShadowEffect ShadowDepth="0" 
+                                            BlurRadius="10" 
+                                            Opacity="0.3" 
+                                            Color="White"/>
+                                </ContentPresenter.Effect>
+                            </ContentPresenter>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0.4"/>
+                                <Setter TargetName="backgroundBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <BlurEffect Radius="0.5"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0.2"/>
+                                <Setter TargetName="contentPresenter" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Alternative Outlined Button Style -->
+        <Style x:Key="OutlinedButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#0080FF"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" 
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="#0080FF"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="10">
+                            <ContentPresenter x:Name="contentPresenter"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    TextBlock.Foreground="{TemplateBinding Foreground}"
+                                    Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#15FF3366"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#25FF3366"/>
+                                <Setter TargetName="contentPresenter" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <TranslateTransform Y="1"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Theme Radio Button Style -->
+        <Style x:Key="ThemeRadioButton" TargetType="{x:Type RadioButton}">
+            <Setter Property="Foreground" Value="#B3B3B3"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                        <Border x:Name="border" 
+                                Background="#242424" 
+                                BorderThickness="1"
+                                BorderBrush="#404040"
+                                CornerRadius="8"
+                                Padding="12,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse x:Name="radioCircle"
+                                        Width="18" 
+                                        Height="18"
+                                        Stroke="#0080FF"
+                                        StrokeThickness="2"
+                                        Fill="Transparent"/>
+                                <Ellipse x:Name="radioFill"
+                                        Width="10" 
+                                        Height="10"
+                                        Fill="#00D1FF"
+                                        Opacity="0"/>
+                                <ContentPresenter Grid.Column="1" 
+                                                Margin="12,0,0,0"
+                                                VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="radioFill" Property="Opacity" Value="1"/>
+                                <Setter TargetName="border" Property="Background" Value="#2A2A2A"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#2A2A2A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern TextBox Style -->
+        <Style x:Key="ModernTextBox" TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="#242424"/>
+            <Setter Property="Foreground" Value="#B3B3B3"/>
+            <Setter Property="BorderBrush" Value="#404040"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                        Focusable="false"
+                                        HorizontalScrollBarVisibility="Hidden"
+                                        VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="BorderBrush" Value="#0080FF"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="true">
+                                <Setter Property="BorderBrush" Value="#0080FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
+            <RowDefinition Height="28"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="Transparent" MouseDown="TitleBar_MouseDown">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{StaticResource WindowButton}" Content="×" Click="Close_Click"/>
+        <!-- Title Bar -->
+        <Grid Grid.Row="0" Background="#080808" MouseDown="TitleBar_MouseDown">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="8,0,0,0">
+                <TextBlock Text="Settings" Foreground="White" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
+            <Button Style="{StaticResource ModernButton}"
+                    Content="×"
+                    Width="46"
+                    Height="28"
+                    FontSize="16"
+                    Padding="0"
+                    Background="Transparent"
+                    HorizontalAlignment="Right"
+                    Click="Close_Click"/>
         </Grid>
 
+        <!-- Main Content -->
         <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -27,105 +295,169 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" 
-                       Text="SETTINGS v1.2" 
-                       Foreground="#00D1FF" 
+                       Text="Settings" 
+                       Foreground="White" 
                        FontSize="24" 
                        FontWeight="Bold"
                        Margin="0,0,0,20"/>
 
-            <ScrollViewer Grid.Row="1">
-                <Border Background="#12123A" 
-                        Margin="0,0,0,20" 
-                        Padding="15"
-                        CornerRadius="10">
-                    <StackPanel>
-                        <TextBlock Text="Audio" 
-                                 Foreground="#00D1FF" 
-                                 FontSize="18" 
-                                 FontWeight="Bold"
-                                 Margin="0,0,0,10"/>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,0,0,20">
+                    <!-- Appearance Section -->
+                    <Border Background="#181818" 
+                            Padding="20"
+                            CornerRadius="12"
+                            BorderThickness="1"
+                            BorderBrush="#333333"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Appearance(WIP)" 
+                                     Foreground="White" 
+                                     FontSize="18" 
+                                     FontWeight="Bold"
+                                     Margin="0,0,0,16"/>
 
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="Default Volume" 
-                                     Foreground="#B0B0FF" 
-                                     Margin="0,0,0,5"/>
-                            <Slider x:Name="DefaultVolumeSlider"
-                                   Style="{StaticResource VolumeSlider}"
-                                   Maximum="1" 
-                                   Value="0.5"/>
+                            <TextBlock Text="Theme" 
+                                     Foreground="#B3B3B3" 
+                                     Margin="0,0,0,12"/>
+
+                            <RadioButton x:Name="SystemThemeRadio"
+                                       GroupName="Theme"
+                                       Content="Use system theme"
+                                       Style="{StaticResource ThemeRadioButton}"/>
+
+                            <RadioButton x:Name="LightThemeRadio"
+                                       GroupName="Theme"
+                                       Content="Light"
+                                       Style="{StaticResource ThemeRadioButton}"/>
+
+                            <RadioButton x:Name="DarkThemeRadio"
+                                       GroupName="Theme"
+                                       Content="Dark"
+                                       Style="{StaticResource ThemeRadioButton}"
+                                       IsChecked="True"/>
+
+                            <RadioButton x:Name="ContrastThemeRadio"
+                                       GroupName="Theme"
+                                       Content="High contrast"
+                                       Style="{StaticResource ThemeRadioButton}"/>
                         </StackPanel>
+                    </Border>
 
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="Crossfade Duration (seconds)" 
-                                     Foreground="#B0B0FF" 
-                                     Margin="0,0,0,5"/>
-                            <Slider x:Name="CrossfadeSlider"
-                                   Style="{StaticResource VolumeSlider}"
-                                   Maximum="10" 
-                                   Value="2"/>
+                    <!-- Audio Section -->
+                    <Border Background="#181818" 
+                            Padding="20"
+                            CornerRadius="12"
+                            BorderThickness="1"
+                            BorderBrush="#333333"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Audio" 
+                                     Foreground="White" 
+                                     FontSize="18" 
+                                     FontWeight="Bold"
+                                     Margin="0,0,0,16"/>
+
+                            <StackPanel Margin="0,0,0,20">
+                                <TextBlock Text="Default Volume" 
+                                         Foreground="#B3B3B3" 
+                                         Margin="0,0,0,8"/>
+                                <Slider x:Name="DefaultVolumeSlider"
+                                       Style="{StaticResource ModernSlider}"
+                                       Maximum="1" 
+                                       Value="0.5"/>
+                            </StackPanel>
+
+                            <StackPanel>
+                                <TextBlock Text="Crossfade Duration (seconds)" 
+                                         Foreground="#B3B3B3" 
+                                         Margin="0,0,0,8"/>
+                                <Slider x:Name="CrossfadeSlider"
+                                       Style="{StaticResource ModernSlider}"
+                                       Maximum="10" 
+                                       Value="2"/>
+                            </StackPanel>
                         </StackPanel>
+                    </Border>
 
-                        <TextBlock Text="Playback" 
-                                 Foreground="#00D1FF" 
-                                 FontSize="18" 
-                                 FontWeight="Bold"
-                                 Margin="0,10,0,10"/>
+                    <!-- Playback Section -->
+                    <Border Background="#181818" 
+                            Padding="20"
+                            CornerRadius="12"
+                            BorderThickness="1"
+                            BorderBrush="#333333"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Playback" 
+                                     Foreground="White" 
+                                     FontSize="18" 
+                                     FontWeight="Bold"
+                                     Margin="0,0,0,16"/>
+                            <CheckBox x:Name="AutoPlayCheckBox"
+                                    Content="Auto-play when track added" 
+                                    Foreground="#B3B3B3"
+                                    Margin="0,0,0,12"/>
 
-                        <CheckBox x:Name="AutoPlayCheckBox"
-                                Content="Auto-play when track added" 
-                                Foreground="#B0B0FF"
-                                Margin="0,0,0,10"/>
+                            <CheckBox x:Name="RememberTrackCheckBox"
+                                    Content="Remember last played track" 
+                                    Foreground="#B3B3B3"
+                                    Margin="0,0,0,12"/>
 
-                        <CheckBox x:Name="RememberTrackCheckBox"
-                                Content="Remember last played track" 
-                                Foreground="#B0B0FF"
-                                Margin="0,0,0,10"/>
-
-                        <CheckBox x:Name="NotificationsCheckBox"
-                                Content="Show notifications" 
-                                Foreground="#B0B0FF"
-                                Margin="0,0,0,10"/>
-
-                        <TextBlock Text="File Handling" 
-                                 Foreground="#00D1FF" 
-                                 FontSize="18" 
-                                 FontWeight="Bold"
-                                 Margin="0,10,0,10"/>
-
-                        <StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="Default Music Folder" 
-                                     Foreground="#B0B0FF" 
-                                     Margin="0,0,0,5"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox x:Name="MusicFolderTextBox"
-                                        Background="#0A0A1E" 
-                                        Foreground="#B0B0FF" 
-                                        BorderBrush="#00D1FF"
-                                        Height="20"/>
-                                <Button Grid.Column="1" 
-                                        Content="📁" 
-                                        Margin="5,0,0,0"
-                                        Style="{StaticResource PlayerControlButton}"
-                                        Click="BrowseButton_Click"/>
-                            </Grid>
+                            <CheckBox x:Name="NotificationsCheckBox"
+                                    Content="Show notifications" 
+                                    Foreground="#B3B3B3"/>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
+
+                    <!-- File Handling Section -->
+                    <Border Background="#181818" 
+                            Padding="20"
+                            CornerRadius="12"
+                            BorderThickness="1"
+                            BorderBrush="#333333">
+                        <StackPanel>
+                            <TextBlock Text="File Handling" 
+                                     Foreground="White" 
+                                     FontSize="18" 
+                                     FontWeight="Bold"
+                                     Margin="0,0,0,16"/>
+
+                            <StackPanel>
+                                <TextBlock Text="Default Music Folder" 
+                                         Foreground="#B3B3B3" 
+                                         Margin="0,0,0,8"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="MusicFolderTextBox"
+                                            Style="{StaticResource ModernTextBox}"
+                                            Height="32"
+                                            VerticalContentAlignment="Center"/>
+                                    <Button Grid.Column="1" 
+                                            Content="📁" 
+                                            Margin="8,0,0,0"
+                                            Style="{StaticResource ModernButton}"
+                                            Click="BrowseButton_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
             </ScrollViewer>
 
+            <!-- Action Buttons -->
             <StackPanel Grid.Row="2" 
                         Orientation="Horizontal" 
-                        HorizontalAlignment="Right">
-                <Button Content="✅" 
-                        Style="{StaticResource PlayerControlButton}" 
+                        HorizontalAlignment="Right"
+                        Margin="0,16,0,0">
+                <Button Content="Apply" 
+                        Style="{StaticResource ModernButton}" 
                         Click="ApplyButton_Click"
-                        Margin="0,0,10,0"/>
-                <Button Content="❎" 
-                        Style="{StaticResource PlayerControlButton}"
+                        Margin="0,0,8,0"/>
+                <Button Content="Cancel" 
+                        Style="{StaticResource OutlinedButton}"
                         Click="CancelButton_Click"/>
             </StackPanel>
         </Grid>

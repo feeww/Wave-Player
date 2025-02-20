@@ -6,8 +6,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using TagLib;
 
 namespace Wave_Player
 {
@@ -22,7 +24,8 @@ namespace Wave_Player
         private SettingsC _settings;
         private FileSystemWatcher _fileWatcher;
         private readonly string _saveFilePath = "playlist.json";
-        private readonly string _lastTrackFilePath = "lastTrack.json"; 
+        private readonly string _lastTrackFilePath = "lastTrack.json";
+        private TimeSpan _pausedPosition;
 
         public MainWindow()
         {
@@ -32,14 +35,14 @@ namespace Wave_Player
             InitializeFileWatcher();
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += UpdateProgress;
-            LoadLastTrack(); 
+            LoadLastTrack();
         }
 
         private void LoadSettings()
         {
             _settings = SettingsC.Load();
             MediaPlayer.Volume = _settings.DefaultVolume;
-            VolumeSlider.Value = _settings.DefaultVolume; 
+            VolumeSlider.Value = _settings.DefaultVolume;
 
             LoadMusicFiles();
         }
@@ -101,7 +104,7 @@ namespace Wave_Player
                 {
                     if (!_trackPaths.Contains(file))
                     {
-                        File.Copy(file, Path.Combine(_settings.DefaultMusicFolder, Path.GetFileName(file)), true);
+                        System.IO.File.Copy(file, Path.Combine(_settings.DefaultMusicFolder, Path.GetFileName(file)), true);
                     }
                 }
             }
@@ -113,9 +116,9 @@ namespace Wave_Player
             {
                 int index = TrackList.SelectedIndex;
                 string filePath = _trackPaths[index];
-                if (File.Exists(filePath))
+                if (System.IO.File.Exists(filePath))
                 {
-                    File.Delete(filePath);
+                    System.IO.File.Delete(filePath);
                 }
             }
         }
@@ -126,9 +129,17 @@ namespace Wave_Player
             {
                 string selectedTrack = _trackPaths[TrackList.SelectedIndex];
 
-                if (MediaPlayer.Source == null || MediaPlayer.Source.ToString() != selectedTrack)
+                // Якщо трек ще не завантажений або змінився — завантажуємо його заново
+                if (MediaPlayer.Source == null || !MediaPlayer.Source.OriginalString.Equals(selectedTrack, StringComparison.OrdinalIgnoreCase))
                 {
                     MediaPlayer.Source = new Uri(selectedTrack);
+                    MediaPlayer.Position = TimeSpan.Zero; // Новий трек починається з початку
+                    UpdateTrackInfo(Path.GetFileNameWithoutExtension(selectedTrack), selectedTrack);
+                }
+                else
+                {
+                    // Якщо трек вже завантажений, відновлюємо позицію після паузи
+                    MediaPlayer.Position = _pausedPosition;
                 }
 
                 MediaPlayer.Play();
@@ -137,18 +148,25 @@ namespace Wave_Player
                 PlayButton.Visibility = Visibility.Collapsed;
                 PauseButton.Visibility = Visibility.Visible;
 
-                SaveLastTrack(); // Add this line
+                SaveLastTrack();
             }
         }
 
+
+
         private void Pause_Click(object sender, RoutedEventArgs e)
         {
-            MediaPlayer.Pause();
-            _timer.Stop();
+            if (MediaPlayer.Source != null)
+            {
+                _pausedPosition = MediaPlayer.Position; // Зберігаємо позицію треку
+                MediaPlayer.Pause();
+                _timer.Stop();
 
-            PlayButton.Visibility = Visibility.Visible;
-            PauseButton.Visibility = Visibility.Collapsed;
+                PlayButton.Visibility = Visibility.Visible;
+                PauseButton.Visibility = Visibility.Collapsed;
+            }
         }
+
 
         private void Previous_Click(object sender, RoutedEventArgs e)
         {
@@ -193,9 +211,9 @@ namespace Wave_Player
 
             _isShuffleEnabled = !_isShuffleEnabled;
 
-            if (_isShuffleEnabled)
+            if (_isShuffleEnabled && IsRepeatEnabled == false)
             {
-                shuffleButton.Background = new LinearGradientBrush(
+                shuffleButton.Foreground = new LinearGradientBrush(
                     System.Windows.Media.Color.FromRgb(0, 209, 255),
                     System.Windows.Media.Color.FromRgb(0, 128, 255),
                     new System.Windows.Point(0, 0),
@@ -203,7 +221,7 @@ namespace Wave_Player
             }
             else
             {
-                shuffleButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#22224F"));
+                shuffleButton.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B3B3"));
             }
         }
 
@@ -213,9 +231,9 @@ namespace Wave_Player
 
             _isRepeatEnabled = !_isRepeatEnabled;
 
-            if (_isRepeatEnabled)
+            if (_isRepeatEnabled && IsShuffleEnabled == false)
             {
-                repeatButton.Background = new System.Windows.Media.LinearGradientBrush(
+                repeatButton.Foreground = new System.Windows.Media.LinearGradientBrush(
                     System.Windows.Media.Color.FromRgb(0, 209, 255),
                     System.Windows.Media.Color.FromRgb(0, 128, 255),
                     new System.Windows.Point(0, 0),
@@ -223,7 +241,7 @@ namespace Wave_Player
             }
             else
             {
-                repeatButton.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#22224F"));
+                repeatButton.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#B3B3B3"));
             }
         }
 
@@ -242,6 +260,8 @@ namespace Wave_Player
 
         private void MediaPlayer_MediaEnded(object sender, RoutedEventArgs e)
         {
+            _pausedPosition = TimeSpan.Zero; 
+
             if (_isRepeatEnabled)
             {
                 MediaPlayer.Position = TimeSpan.Zero;
@@ -265,7 +285,7 @@ namespace Wave_Player
             }
             else
             {
-                SaveLastTrack(); 
+                SaveLastTrack();
             }
         }
 
@@ -291,12 +311,61 @@ namespace Wave_Player
         private void ProgressBar_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             _isDraggingProgress = true;
+            UpdateProgressBarValue(e.GetPosition(ProgressBar).X);
         }
 
         private void ProgressBar_PreviewMouseUp(object sender, MouseButtonEventArgs e)
         {
-            MediaPlayer.Position = TimeSpan.FromSeconds(ProgressBar.Value);
+            UpdateProgressBarValue(e.GetPosition(ProgressBar).X);
             _isDraggingProgress = false;
+        }
+
+        private void UpdateProgressBarValue(double mouseX)
+        {
+            double ratio = mouseX / ProgressBar.ActualWidth;
+            double newValue = ratio * ProgressBar.Maximum;
+            ProgressBar.Value = newValue;
+            MediaPlayer.Position = TimeSpan.FromSeconds(newValue);
+        }
+
+        private void VolumeSlider_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            UpdateVolumeSliderValue(e.GetPosition(VolumeSlider).X);
+        }
+
+        private void VolumeSlider_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            UpdateVolumeSliderValue(e.GetPosition(VolumeSlider).X);
+        }
+
+        private void UpdateVolumeSliderValue(double mouseX)
+        {
+            double ratio = mouseX / VolumeSlider.ActualWidth;
+            double newValue = ratio * VolumeSlider.Maximum;
+            VolumeSlider.Value = newValue;
+            MediaPlayer.Volume = newValue;
+        }
+
+       
+        
+
+        private void Mute_Click(object sender, RoutedEventArgs e)
+        {
+            double previousVolume = 0.2;
+
+            if (MediaPlayer.Volume > 0)
+            {
+                previousVolume = MediaPlayer.Volume;
+                MediaPlayer.Volume = 0;             
+                VolumeSlider.Value = 0;               
+                MuteButton.Content = "🔇";             
+            }
+            else
+            {
+                MediaPlayer.Volume = previousVolume;  
+                VolumeSlider.Value = previousVolume;
+                MuteButton.Content = "🔊";             
+            }
         }
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -309,11 +378,11 @@ namespace Wave_Player
 
         private void LoadPlaylist()
         {
-            if (File.Exists(_saveFilePath))
+            if (System.IO.File.Exists(_saveFilePath))
             {
                 try
                 {
-                    _trackPaths = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_saveFilePath)) ?? new List<string>();
+                    _trackPaths = JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(_saveFilePath)) ?? new List<string>();
                     foreach (var path in _trackPaths)
                     {
                         TrackList.Items.Add(Path.GetFileName(path));
@@ -328,14 +397,14 @@ namespace Wave_Player
 
         private void SavePlaylist()
         {
-            File.WriteAllText(_saveFilePath, JsonSerializer.Serialize(_trackPaths));
+            System.IO.File.WriteAllText(_saveFilePath, JsonSerializer.Serialize(_trackPaths));
         }
 
-        private void LoadLastTrack() 
+        private void LoadLastTrack()
         {
-            if (_settings.RememberLastTrack && File.Exists(_lastTrackFilePath))
+            if (_settings.RememberLastTrack && System.IO.File.Exists(_lastTrackFilePath))
             {
-                string lastTrack = File.ReadAllText(_lastTrackFilePath);
+                string lastTrack = System.IO.File.ReadAllText(_lastTrackFilePath);
                 if (_trackPaths.Contains(lastTrack))
                 {
                     TrackList.SelectedIndex = _trackPaths.IndexOf(lastTrack);
@@ -344,13 +413,49 @@ namespace Wave_Player
             }
         }
 
-        private void SaveLastTrack() 
+        private void SaveLastTrack()
         {
             if (_settings.RememberLastTrack && TrackList.SelectedIndex >= 0)
             {
                 string currentTrack = _trackPaths[TrackList.SelectedIndex];
-                File.WriteAllText(_lastTrackFilePath, currentTrack);
+                System.IO.File.WriteAllText(_lastTrackFilePath, currentTrack);
             }
         }
+
+        private void UpdateTrackInfo(string trackName, string trackPath)
+        {
+            CurrentTrackName.Text = trackName;
+
+            // Extract album art from the MP3 file
+            var file = TagLib.File.Create(trackPath);
+            if (file.Tag.Pictures.Length > 0)
+            {
+                var bin = (byte[])(file.Tag.Pictures[0].Data.Data);
+                using (var stream = new MemoryStream(bin))
+                {
+                    var image = new BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = stream;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    AlbumCover.ImageSource = image;
+                }
+            }
+            else
+            {
+                // Set a default image if no album art is found
+                AlbumCover.ImageSource = new BitmapImage(new Uri("assets/wave.png", UriKind.Relative));
+            }
+        }
+
+        private void ResetAnimation(object sender, EventArgs e)
+        {
+            //CurrentTrackNameTransform.X = -150;
+        }
+
+
+
     }
 }
+
+

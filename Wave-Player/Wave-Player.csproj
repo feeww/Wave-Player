@@ -11,16 +11,20 @@
 
   <ItemGroup>
     <None Remove="assets\favicon.ico" />
+    <None Remove="assets\wave.gif" />
+    <None Remove="assets\wave.png" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="assets\favicon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="assets\wave.png" />
   </ItemGroup>
 
   <ItemGroup>
