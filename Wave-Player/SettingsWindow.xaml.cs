@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Wave_Player.classes;
+using Button = System.Windows.Controls.Button;
 
 namespace Wave_Player
 {
@@ -13,6 +17,9 @@ namespace Wave_Player
         {
             InitializeComponent();
             LoadSettings();
+
+            UpdateColorPickerBackground(PrimaryColorPicker, _settings.Theme.PrimaryColor);
+            UpdateColorPickerBackground(SecondaryColorPicker, _settings.Theme.SecondaryColor);
         }
 
         private void LoadSettings()
@@ -35,6 +42,53 @@ namespace Wave_Player
             _settings.ShowNotifications = NotificationsCheckBox.IsChecked ?? false;
             _settings.DefaultMusicFolder = MusicFolderTextBox.Text;
             _settings.Save();
+        }
+
+        private void ColorPicker_Click(object sender, RoutedEventArgs e)
+        {
+            var button = (Button)sender;
+            var dialog = new System.Windows.Forms.ColorDialog();
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                var colorHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+
+                if (button == PrimaryColorPicker)
+                {
+                    _settings.Theme.PrimaryColor = colorHex;
+                    PrimaryColorTextBox.Text = colorHex;
+                }
+                else
+                {
+                    _settings.Theme.SecondaryColor = colorHex;
+                    SecondaryColorTextBox.Text = colorHex;
+                }
+
+                UpdateColorPickerBackground(button, colorHex);
+                ApplyThemeColors();
+            }
+        }
+
+        private void UpdateColorPickerBackground(Button button, string colorHex)
+        {
+            button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colorHex));
+        }
+
+        private void ApplyThemeColors()
+        {
+            var app = System.Windows.Application.Current;
+
+            // Create gradient brush with selected colors
+            var gradientBrush = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
+            };
+            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor), 0));
+            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor), 1));
+
+            // Update resources
+            app.Resources["ThemeGradient"] = gradientBrush;
         }
 
         private void BrowseButton_Click(object sender, RoutedEventArgs e)

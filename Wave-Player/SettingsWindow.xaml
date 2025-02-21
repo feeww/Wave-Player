@@ -303,44 +303,60 @@
 
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="0,0,0,20">
-                    <!-- Appearance Section -->
+                   
                     <Border Background="#181818" 
                             Padding="20"
                             CornerRadius="12"
                             BorderThickness="1"
                             BorderBrush="#333333"
                             Margin="0,0,0,16">
+                    
                         <StackPanel>
-                            <TextBlock Text="Appearance(WIP)" 
-                                     Foreground="White" 
-                                     FontSize="18" 
-                                     FontWeight="Bold"
-                                     Margin="0,0,0,16"/>
+                            <TextBlock Text="Custom Theme Colors" 
+               Foreground="#B3B3B3" 
+               Margin="0,0,0,12"/>
 
-                            <TextBlock Text="Theme" 
-                                     Foreground="#B3B3B3" 
-                                     Margin="0,0,0,12"/>
+                            <StackPanel Margin="0,0,0,12">
+                                <TextBlock Text="Primary Color" 
+                   Foreground="#B3B3B3" 
+                   Margin="0,0,0,8"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="PrimaryColorTextBox"
+                     Style="{StaticResource ModernTextBox}"
+                     Text="{Binding PrimaryColor, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Button Grid.Column="1" 
+                    x:Name="PrimaryColorPicker"
+                    Width="32"
+                    Height="32"
+                    Margin="8,0,0,0"
+                    Click="ColorPicker_Click"/>
+                                </Grid>
+                            </StackPanel>
 
-                            <RadioButton x:Name="SystemThemeRadio"
-                                       GroupName="Theme"
-                                       Content="Use system theme"
-                                       Style="{StaticResource ThemeRadioButton}"/>
-
-                            <RadioButton x:Name="LightThemeRadio"
-                                       GroupName="Theme"
-                                       Content="Light"
-                                       Style="{StaticResource ThemeRadioButton}"/>
-
-                            <RadioButton x:Name="DarkThemeRadio"
-                                       GroupName="Theme"
-                                       Content="Dark"
-                                       Style="{StaticResource ThemeRadioButton}"
-                                       IsChecked="True"/>
-
-                            <RadioButton x:Name="ContrastThemeRadio"
-                                       GroupName="Theme"
-                                       Content="High contrast"
-                                       Style="{StaticResource ThemeRadioButton}"/>
+                            <StackPanel>
+                                <TextBlock Text="Secondary Color" 
+                   Foreground="#B3B3B3" 
+                   Margin="0,0,0,8"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="SecondaryColorTextBox"
+                     Style="{StaticResource ModernTextBox}"
+                     Text="{Binding SecondaryColor, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <Button Grid.Column="1" 
+                    x:Name="SecondaryColorPicker"
+                    Width="32"
+                    Height="32"
+                    Margin="8,0,0,0"
+                    Click="ColorPicker_Click"/>
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Media;
 
 namespace Wave_Player
 {
@@ -24,5 +25,19 @@ namespace Wave_Player
         {
             Settings.Default.Save();
         }
+
+        public void ApplyThemeColors(string primaryColor, string secondaryColor)
+        {
+            var gradientBrush = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
+            };
+            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(primaryColor), 0));
+            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(secondaryColor), 1));
+
+            Resources["ThemeGradient"] = gradientBrush;
+        }
+
     }
 }

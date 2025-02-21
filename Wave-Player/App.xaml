@@ -7,7 +7,8 @@
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="1"/>
             <Setter Property="Template">
-                <Setter.Value>
+
+                    <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid>
                             <Border Height="4" Background="White" CornerRadius="2"/>

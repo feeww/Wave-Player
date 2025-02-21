@@ -1,6 +1,4 @@
-﻿<!-- FILE CONTEXT -->
-<!-- Wave-Player/MainWindow.xaml -->
-<Window x:Class="Wave_Player.MainWindow"
+﻿<Window x:Class="Wave_Player.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Wave Player" Height="600" Width="900"
@@ -85,7 +83,6 @@
         </Style>
 
 
-        <!-- Оновлений стиль для головної кнопки відтворення -->
         <Style x:Key="PlayButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background">
                 <Setter.Value>
@@ -144,7 +141,6 @@
             AutoReverse="False"/>
         </Storyboard>
 
-        <!-- Оновлений стиль для слайдера -->
         <Style x:Key="ModernSlider" TargetType="{x:Type Slider}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -203,7 +199,6 @@
             </Setter>
         </Style>
 
-        <!-- Оновлений стиль для списку треків -->
         <Style x:Key="TrackListBoxStyle" TargetType="{x:Type ListBox}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -260,7 +255,6 @@
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
 
-        <!-- Оновлений заголовок вікна -->
         <Grid Grid.Row="0" Background="#050505" MouseDown="TitleBar_MouseDown">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,0,0,0">
                 <Image Source="/assets/favicon.ico" Width="18" Height="18" Margin="0,0,8,0"/>
@@ -273,7 +267,6 @@
             </StackPanel>
         </Grid>
 
-        <!-- Оновлений основний контент -->
         <Grid Grid.Row="1" Background="#0A0A0A">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -301,7 +294,6 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Оновлений список треків -->
             <ListBox Name="TrackList" 
                      Grid.Row="1" 
                      Margin="24,8,24,24" 
@@ -309,7 +301,6 @@
                      SelectionChanged="TrackList_SelectionChanged"/>
         </Grid>
 
-        <!-- Нижня панель керування -->
         <Border Grid.Row="2" Background="#181818" BorderThickness="0,1,0,0" BorderBrush="#333333">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -318,7 +309,6 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Інформація про поточний трек -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="24,18,24,18" VerticalAlignment="Center">
                     <Border Width="64" Height="64" CornerRadius="12" Margin="0,0,16,0">
                         <Border.Background>
@@ -347,9 +337,7 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Панель керування відтворенням -->
                 <Grid Grid.Column="1" VerticalAlignment="Center">
-                    <!-- Кнопки керування -->
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -393,7 +381,7 @@
 
                         <Slider x:Name="ProgressBar" 
                        Grid.Column="1" 
-                       Width="400"
+                       Width="330"
                        Style="{StaticResource ModernSlider}"
                        PreviewMouseDown="ProgressBar_PreviewMouseDown"
                        PreviewMouseUp="ProgressBar_PreviewMouseUp"
@@ -409,7 +397,6 @@
                     </Grid>
                 </Grid>
 
-                <!-- Гучність та додаткові елементи керування -->
                 <StackPanel Grid.Column="2" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Right" 

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using TagLib;
+using Wave_Player.classes;
 
 namespace Wave_Player
 {
@@ -129,16 +132,14 @@ namespace Wave_Player
             {
                 string selectedTrack = _trackPaths[TrackList.SelectedIndex];
 
-                // Якщо трек ще не завантажений або змінився — завантажуємо його заново
                 if (MediaPlayer.Source == null || !MediaPlayer.Source.OriginalString.Equals(selectedTrack, StringComparison.OrdinalIgnoreCase))
                 {
                     MediaPlayer.Source = new Uri(selectedTrack);
-                    MediaPlayer.Position = TimeSpan.Zero; // Новий трек починається з початку
+                    MediaPlayer.Position = TimeSpan.Zero; 
                     UpdateTrackInfo(Path.GetFileNameWithoutExtension(selectedTrack), selectedTrack);
                 }
                 else
                 {
-                    // Якщо трек вже завантажений, відновлюємо позицію після паузи
                     MediaPlayer.Position = _pausedPosition;
                 }
 
@@ -158,7 +159,7 @@ namespace Wave_Player
         {
             if (MediaPlayer.Source != null)
             {
-                _pausedPosition = MediaPlayer.Position; // Зберігаємо позицію треку
+                _pausedPosition = MediaPlayer.Position; 
                 MediaPlayer.Pause();
                 _timer.Stop();
 
@@ -254,7 +255,7 @@ namespace Wave_Player
             if (settingsWindow.DialogResult == true)
             {
                 MediaPlayer.Volume = _settings.DefaultVolume;
-                VolumeSlider.Value = _settings.DefaultVolume; // Ensure VolumeSlider is updated after settings are applied
+                VolumeSlider.Value = _settings.DefaultVolume; 
             }
         }
 
@@ -443,7 +444,6 @@ namespace Wave_Player
             }
             else
             {
-                // Set a default image if no album art is found
                 AlbumCover.ImageSource = new BitmapImage(new Uri("assets/wave.png", UriKind.Relative));
             }
         }

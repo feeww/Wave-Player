@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace Wave_Player
+namespace Wave_Player.classes
 {
     public class SettingsC
     {
@@ -12,6 +12,7 @@ namespace Wave_Player
         public bool RememberLastTrack { get; set; } = true;
         public bool ShowNotifications { get; set; } = true;
         public string DefaultMusicFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+        public ThemeSettings Theme { get; set; } = new ThemeSettings();
 
         private static readonly string SettingsFilePath = "settings.json";
 
