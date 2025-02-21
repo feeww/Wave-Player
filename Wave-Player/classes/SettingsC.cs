@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using System.Windows.Media;
 
 namespace Wave_Player.classes
 {
@@ -23,7 +24,18 @@ namespace Wave_Player.classes
                 try
                 {
                     string json = File.ReadAllText(SettingsFilePath);
-                    return JsonSerializer.Deserialize<SettingsC>(json) ?? new SettingsC();
+                    var settings = JsonSerializer.Deserialize<SettingsC>(json) ?? new SettingsC();
+
+                    if (!IsValidColor(settings.Theme.PrimaryColor))
+                    {
+                        settings.Theme.PrimaryColor = "#00D1FF";
+                    }
+                    if (!IsValidColor(settings.Theme.SecondaryColor))
+                    {
+                        settings.Theme.SecondaryColor = "#0080FF";
+                    }
+
+                    return settings;
                 }
                 catch (Exception)
                 {
@@ -32,6 +44,20 @@ namespace Wave_Player.classes
             }
             return new SettingsC();
         }
+
+        private static bool IsValidColor(string color)
+        {
+            try
+            {
+                ColorConverter.ConvertFromString(color);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
 
         public void Save()
         {

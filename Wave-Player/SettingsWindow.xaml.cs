@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Wave_Player.classes;
 using Button = System.Windows.Controls.Button;
+using System.Windows.Controls;
+using Xceed.Wpf.Toolkit;
 
 namespace Wave_Player
 {
@@ -20,6 +22,11 @@ namespace Wave_Player
 
             UpdateColorPickerBackground(PrimaryColorPicker, _settings.Theme.PrimaryColor);
             UpdateColorPickerBackground(SecondaryColorPicker, _settings.Theme.SecondaryColor);
+
+            PrimaryColorTextBox.Text = _settings.Theme.PrimaryColor;
+            SecondaryColorTextBox.Text = _settings.Theme.SecondaryColor;
+
+            ApplyThemeColors();
         }
 
         private void LoadSettings()
@@ -76,9 +83,7 @@ namespace Wave_Player
 
         private void ApplyThemeColors()
         {
-            var app = System.Windows.Application.Current;
-
-            // Create gradient brush with selected colors
+            // Create a gradient brush
             var gradientBrush = new LinearGradientBrush
             {
                 StartPoint = new Point(0, 0),
@@ -87,9 +92,56 @@ namespace Wave_Player
             gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor), 0));
             gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor), 1));
 
-            // Update resources
-            app.Resources["ThemeGradient"] = gradientBrush;
+            // Update sliders
+            var modernSliderStyle = FindResource("ModernSlider") as Style;
+            if (modernSliderStyle != null)
+            {
+                var newStyle = new Style(typeof(Slider), modernSliderStyle);
+                foreach (var setter in modernSliderStyle.Setters)
+                {
+                    if (setter is Setter setterObj && setterObj.Property == Slider.ForegroundProperty)
+                    {
+                        newStyle.Setters.Add(new Setter(Slider.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor))));
+                    }
+                    else
+                    {
+                        newStyle.Setters.Add(setter);
+                    }
+                }
+                // Apply the new style to the sliders
+                foreach (var slider in FindVisualChildren<Slider>(this))
+                {
+                    slider.Style = newStyle;
+                }
+            }
+
+            // Save colors for use in MainWindow
+            System.Windows.Application.Current.Resources["ThemeGradient"] = gradientBrush;
+            System.Windows.Application.Current.Resources["ThemePrimaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor));
+            System.Windows.Application.Current.Resources["ThemeSecondaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor));
         }
+
+        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child != null && child is T)
+                    {
+                        yield return (T)child;
+                    }
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    {
+                        yield return childOfChild;
+                    }
+                }
+            }
+        }
+
+
 
         private void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -112,9 +164,38 @@ namespace Wave_Player
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveSettings();
+            string primaryColor = PrimaryColorTextBox.Text;
+            string secondaryColor = SecondaryColorTextBox.Text;
+
+            if (!IsValidColor(primaryColor) || !IsValidColor(secondaryColor))
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Please select valid colors.", "Invalid Color", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _settings.Theme.PrimaryColor = primaryColor;
+            _settings.Theme.SecondaryColor = secondaryColor;
+            _settings.Save();
+
+            var mainWindow = (MainWindow)Owner;
+            mainWindow.UpdateThemeColors(_settings.Theme.PrimaryColor, _settings.Theme.SecondaryColor);
+
             DialogResult = true;
             Close();
+        }
+
+
+        private bool IsValidColor(string color)
+        {
+            try
+            {
+                ColorConverter.ConvertFromString(color);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

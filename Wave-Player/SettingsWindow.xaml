@@ -8,7 +8,6 @@
         ResizeMode="NoResize">
 
     <Window.Resources>
-        <!-- Modern Slider Style -->
         <Style x:Key="ModernSlider" TargetType="Slider">
             <Setter Property="Foreground" Value="#0080FF"/>
             <Setter Property="Background" Value="#404040"/>
@@ -56,7 +55,6 @@
             </Setter>
         </Style>
 
-        <!-- Gradient Button Style -->
         <Style x:Key="ModernButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="White"/>
@@ -69,7 +67,6 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Button}">
                         <Grid>
-                            <!-- Button Background with Gradient -->
                             <Border x:Name="backgroundBorder" 
                             CornerRadius="10">
                                 <Border.Background>
@@ -79,13 +76,11 @@
                                     </LinearGradientBrush>
                                 </Border.Background>
 
-                                <!-- Glass Effect Overlay -->
                                 <Border.Effect>
                                     <BlurEffect Radius="0"/>
                                 </Border.Effect>
                             </Border>
 
-                            <!-- Highlight Overlay -->
                             <Border x:Name="highlightBorder"
                             CornerRadius="10"
                             Opacity="0">
@@ -97,7 +92,6 @@
                                 </Border.Background>
                             </Border>
 
-                            <!-- Content -->
                             <ContentPresenter x:Name="contentPresenter"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
@@ -137,7 +131,6 @@
             </Setter>
         </Style>
 
-        <!-- Alternative Outlined Button Style -->
         <Style x:Key="OutlinedButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="#0080FF"/>
@@ -180,7 +173,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <!-- Theme Radio Button Style -->
         <Style x:Key="ThemeRadioButton" TargetType="{x:Type RadioButton}">
             <Setter Property="Foreground" Value="#B3B3B3"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
@@ -228,7 +220,6 @@
             </Setter>
         </Style>
 
-        <!-- Modern TextBox Style -->
         <Style x:Key="ModernTextBox" TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="#242424"/>
             <Setter Property="Foreground" Value="#B3B3B3"/>
@@ -329,11 +320,12 @@
                      Style="{StaticResource ModernTextBox}"
                      Text="{Binding PrimaryColor, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Button Grid.Column="1" 
-                    x:Name="PrimaryColorPicker"
-                    Width="32"
-                    Height="32"
-                    Margin="8,0,0,0"
-                    Click="ColorPicker_Click"/>
+                                    x:Name="PrimaryColorPicker"
+                                    Width="32"
+                                    Height="32"
+                                    Margin="8,0,0,0"
+                                    
+                                    Click="ColorPicker_Click"/>
                                 </Grid>
                             </StackPanel>
 
@@ -360,7 +352,6 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Audio Section -->
                     <Border Background="#181818" 
                             Padding="20"
                             CornerRadius="12"
@@ -396,7 +387,6 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Playback Section -->
                     <Border Background="#181818" 
                             Padding="20"
                             CornerRadius="12"
@@ -425,7 +415,6 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- File Handling Section -->
                     <Border Background="#181818" 
                             Padding="20"
                             CornerRadius="12"
@@ -463,18 +452,28 @@
                 </StackPanel>
             </ScrollViewer>
 
-            <!-- Action Buttons -->
-            <StackPanel Grid.Row="2" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Right"
-                        Margin="0,16,0,0">
-                <Button Content="Apply" 
-                        Style="{StaticResource ModernButton}" 
-                        Click="ApplyButton_Click"
-                        Margin="0,0,8,0"/>
-                <Button Content="Cancel" 
-                        Style="{StaticResource OutlinedButton}"
-                        Click="CancelButton_Click"/>
+            <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button x:Name="CancelButton" 
+            Content="Cancel" 
+            Width="100" 
+            Height="32" 
+            Margin="0,0,16,0"
+            Style="{StaticResource OutlinedButton}"
+            Click="CancelButton_Click"/>
+
+                <Button x:Name="ApplyButton" 
+            Content="Apply" 
+            Width="100" 
+            Height="32"
+            Style="{StaticResource ModernButton}"
+            Click="ApplyButton_Click">
+                    <Button.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{DynamicResource PrimaryColor}" Offset="0"/>
+                            <GradientStop Color="{DynamicResource SecondaryColor}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Button.Background>
+                </Button>
             </StackPanel>
         </Grid>
     </Grid>
