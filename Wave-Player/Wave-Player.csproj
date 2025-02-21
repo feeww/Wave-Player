@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="assets\dance-smile.gif" />
     <None Remove="assets\favicon.ico" />
     <None Remove="assets\wave.gif" />
     <None Remove="assets\wave.png" />
@@ -19,9 +20,11 @@
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25103.5738" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="assets\dance-smile.gif" />
     <Resource Include="assets\favicon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

@@ -23,6 +23,7 @@ namespace Wave_Player
             UpdateColorPickerBackground(PrimaryColorPicker, _settings.Theme.PrimaryColor);
             UpdateColorPickerBackground(SecondaryColorPicker, _settings.Theme.SecondaryColor);
 
+
             PrimaryColorTextBox.Text = _settings.Theme.PrimaryColor;
             SecondaryColorTextBox.Text = _settings.Theme.SecondaryColor;
 
@@ -108,14 +109,12 @@ namespace Wave_Player
                         newStyle.Setters.Add(setter);
                     }
                 }
-                // Apply the new style to the sliders
                 foreach (var slider in FindVisualChildren<Slider>(this))
                 {
                     slider.Style = newStyle;
                 }
             }
 
-            // Save colors for use in MainWindow
             System.Windows.Application.Current.Resources["ThemeGradient"] = gradientBrush;
             System.Windows.Application.Current.Resources["ThemePrimaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor));
             System.Windows.Application.Current.Resources["ThemeSecondaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor));
@@ -217,5 +216,7 @@ namespace Wave_Player
                 DragMove();
             }
         }
+
+
     }
 }

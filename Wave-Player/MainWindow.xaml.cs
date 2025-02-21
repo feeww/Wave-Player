@@ -30,6 +30,9 @@ namespace Wave_Player
         private readonly string _saveFilePath = "playlist.json";
         private readonly string _lastTrackFilePath = "lastTrack.json";
         private TimeSpan _pausedPosition;
+        private MediaElement AlbumCoverMedia = new MediaElement(); // Initialize here
+
+        private bool isLightTheme = false;
 
         public MainWindow()
         {
@@ -37,12 +40,13 @@ namespace Wave_Player
             InitializeComponent();
             LoadSettings();
 
-            UpdateThemeColors(_settings.Theme.PrimaryColor, _settings.Theme.SecondaryColor);
+            UpdateThemeColors(_settings?.Theme?.PrimaryColor ?? "#FFFFFF", _settings?.Theme?.SecondaryColor ?? "#000000");
 
             InitializeFileWatcher();
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            _timer.Tick += UpdateProgress;
+            _timer.Tick += UpdateProgress!;
             LoadLastTrack();
+            ApplyTheme(isLightTheme);
         }
 
         private void LoadSettings()
@@ -130,9 +134,9 @@ namespace Wave_Player
             }
         }
 
-        private void Play_Click(object sender, RoutedEventArgs e)
+        private void Play_Click(object? sender, RoutedEventArgs? e)
         {
-            Button playButton = (Button)sender;
+            Button playButton = (Button)sender!;
 
             PlayButton.Background = new LinearGradientBrush(
             (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
@@ -165,8 +169,6 @@ namespace Wave_Player
             }
         }
 
-
-
         private void Pause_Click(object sender, RoutedEventArgs e)
         {
             if (MediaPlayer.Source != null)
@@ -179,7 +181,6 @@ namespace Wave_Player
                 PauseButton.Visibility = Visibility.Collapsed;
             }
         }
-
 
         private void Previous_Click(object sender, RoutedEventArgs e)
         {
@@ -357,9 +358,6 @@ namespace Wave_Player
             MediaPlayer.Volume = newValue;
         }
 
-
-
-
         private void Mute_Click(object sender, RoutedEventArgs e)
         {
             double previousVolume = 0.2;
@@ -448,12 +446,28 @@ namespace Wave_Player
                     image.StreamSource = stream;
                     image.CacheOption = BitmapCacheOption.OnLoad;
                     image.EndInit();
-                    AlbumCover.ImageSource = image;
+                    AlbumCoverImage.ImageSource = image;
                 }
             }
             else
             {
-                AlbumCover.ImageSource = new BitmapImage(new Uri("assets/wave.png", UriKind.Relative));
+                AlbumCoverImage.ImageSource = new BitmapImage(new Uri("assets/dance-smile.gif", UriKind.Relative));
+            }
+        }
+        public void UpdateAlbumCover(string imagePath)
+        {
+            if (imagePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+            {
+                //AlbumCoverImage.Visibility = Visibility.Collapsed;
+                AlbumCoverMedia.Visibility = Visibility.Visible;
+                AlbumCoverMedia.Source = new Uri(imagePath);
+                AlbumCoverMedia.Play();
+            }
+            else
+            {
+                AlbumCoverMedia.Visibility = Visibility.Collapsed;
+                //AlbumCoverImage.Visibility = Visibility.Visible; 
+                AlbumCoverImage.ImageSource = new BitmapImage(new Uri(imagePath));
             }
         }
 
@@ -521,7 +535,43 @@ namespace Wave_Player
             }
         }
 
+        private void ThemeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            isLightTheme = !isLightTheme;
+            ApplyTheme(isLightTheme);
+            ThemeToggleButton.Content = isLightTheme ? "☀️" : "🌙";
+        }
+
+        private void ApplyTheme(bool isLight)
+        {
+            var window = Application.Current.MainWindow;
+            if (window != null)
+            {
+                // Update background colors
+                var windowBackground = isLight ? (SolidColorBrush)Resources["WindowBackground_Light"] : (SolidColorBrush)Resources["WindowBackground_Dark"];
+                var secondaryBackground = isLight ? (SolidColorBrush)Resources["SecondaryBackground_Light"] : (SolidColorBrush)Resources["SecondaryBackground_Dark"];
+                var titleBarBackground = isLight ? (SolidColorBrush)Resources["TitleBarBackground_Light"] : (SolidColorBrush)Resources["TitleBarBackground_Dark"];
+
+                // Apply the colors
+                Resources["WindowBackground"] = windowBackground;
+                Resources["SecondaryBackground"] = secondaryBackground;
+                Resources["TitleBarBackground"] = titleBarBackground;
+
+                // Update the Window's background directly
+                this.Background = windowBackground;
+
+                // Update text colors
+                var textColor = isLight ? Colors.Black : Colors.White;
+                var textBrush = new SolidColorBrush(textColor);
+
+                TrackList.Foreground = textBrush;
+                CurrentTrackName.Foreground = textBrush;
+            }
+        }
     }
 }
+
+
+
 
 

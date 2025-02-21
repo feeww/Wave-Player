@@ -14,6 +14,8 @@ namespace Wave_Player.classes
         public bool ShowNotifications { get; set; } = true;
         public string DefaultMusicFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
         public ThemeSettings Theme { get; set; } = new ThemeSettings();
+        public string AlbumCoverImagePath { get; set; }
+
 
         private static readonly string SettingsFilePath = "settings.json";
 

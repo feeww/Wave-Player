@@ -10,5 +10,6 @@ namespace Wave_Player.classes
     {
         public string PrimaryColor { get; set; } = "#00D1FF";
         public string SecondaryColor { get; set; } = "#0080FF";
+        public string BackgroundColor { get; set; } = "#0A0A0A";
     }
 }

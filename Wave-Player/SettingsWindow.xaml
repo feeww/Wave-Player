@@ -261,7 +261,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Title Bar -->
         <Grid Grid.Row="0" Background="#080808" MouseDown="TitleBar_MouseDown">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="8,0,0,0">
                 <TextBlock Text="Settings" Foreground="White" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -277,7 +276,6 @@
                     Click="Close_Click"/>
         </Grid>
 
-        <!-- Main Content -->
         <Grid Grid.Row="1" Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -304,21 +302,23 @@
                     
                         <StackPanel>
                             <TextBlock Text="Custom Theme Colors" 
-               Foreground="#B3B3B3" 
-               Margin="0,0,0,12"/>
+                            FontSize="18"       
+                            Foreground="White"
+                            FontWeight="Bold"
+                            Margin="0,0,0,12"/>
 
                             <StackPanel Margin="0,0,0,12">
                                 <TextBlock Text="Primary Color" 
-                   Foreground="#B3B3B3" 
-                   Margin="0,0,0,8"/>
+                                Foreground="#B3B3B3" 
+                                Margin="0,0,0,8"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox x:Name="PrimaryColorTextBox"
-                     Style="{StaticResource ModernTextBox}"
-                     Text="{Binding PrimaryColor, UpdateSourceTrigger=PropertyChanged}"/>
+                                        Style="{StaticResource ModernTextBox}"
+                                        Text="{Binding PrimaryColor, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Button Grid.Column="1" 
                                     x:Name="PrimaryColorPicker"
                                     Width="32"
@@ -331,24 +331,25 @@
 
                             <StackPanel>
                                 <TextBlock Text="Secondary Color" 
-                   Foreground="#B3B3B3" 
-                   Margin="0,0,0,8"/>
+                                    Foreground="#B3B3B3" 
+                                    Margin="0,0,0,8"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox x:Name="SecondaryColorTextBox"
-                     Style="{StaticResource ModernTextBox}"
-                     Text="{Binding SecondaryColor, UpdateSourceTrigger=PropertyChanged}"/>
+                                        Style="{StaticResource ModernTextBox}"
+                                        Text="{Binding SecondaryColor, UpdateSourceTrigger=PropertyChanged}"/>
                                     <Button Grid.Column="1" 
-                    x:Name="SecondaryColorPicker"
-                    Width="32"
-                    Height="32"
-                    Margin="8,0,0,0"
-                    Click="ColorPicker_Click"/>
+                                        x:Name="SecondaryColorPicker"
+                                        Width="32"
+                                        Height="32"
+                                        Margin="8,0,0,0"
+                                        Click="ColorPicker_Click"/>
                                 </Grid>
                             </StackPanel>
+                            
                         </StackPanel>
                     </Border>
 
@@ -447,6 +448,7 @@
                                             Click="BrowseButton_Click"/>
                                 </Grid>
                             </StackPanel>
+    
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -454,19 +456,15 @@
 
             <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
                 <Button x:Name="CancelButton" 
-            Content="Cancel" 
-            Width="100" 
-            Height="32" 
-            Margin="0,0,16,0"
-            Style="{StaticResource OutlinedButton}"
-            Click="CancelButton_Click"/>
+                Content="Cancel" 
+                Margin="0,0,16,0"
+                Style="{StaticResource OutlinedButton}"
+                Click="CancelButton_Click"/>
 
                 <Button x:Name="ApplyButton" 
-            Content="Apply" 
-            Width="100" 
-            Height="32"
-            Style="{StaticResource ModernButton}"
-            Click="ApplyButton_Click">
+                Content="Apply"
+                Style="{StaticResource ModernButton}"
+                Click="ApplyButton_Click">
                     <Button.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="{DynamicResource PrimaryColor}" Offset="0"/>

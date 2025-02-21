@@ -83,7 +83,6 @@
         </Style>
 
 
-        <!-- Update PlayButtonStyle with theme colors -->
         <Style x:Key="PlayButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="Background">
                 <Setter.Value>
@@ -132,7 +131,6 @@
             </Setter>
         </Style>
 
-        <!-- Update ModernSlider with theme colors -->
         <Style x:Key="ModernSlider" TargetType="{x:Type Slider}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -256,6 +254,23 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <SolidColorBrush x:Key="WindowBackground_Light" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="WindowBackground_Dark" Color="#0A0A0A"/>
+        <SolidColorBrush x:Key="SecondaryBackground_Light" Color="#E5E5E5"/>
+        <SolidColorBrush x:Key="SecondaryBackground_Dark" Color="#181818"/>
+        <SolidColorBrush x:Key="TitleBarBackground_Light" Color="#DEDEDE"/>
+        <SolidColorBrush x:Key="TitleBarBackground_Dark" Color="#050505"/>
+
+        <Style x:Key="ThemeToggleButton" TargetType="{x:Type Button}" BasedOn="{StaticResource PlayerControlButton}">
+            <Setter Property="Content" Value="🌙"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsLightTheme, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Value="True">
+                    <Setter Property="Content" Value="☀️"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -271,6 +286,7 @@
                 <TextBlock Text="Wave Player" Foreground="White" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                
                 <Button Style="{StaticResource WindowButton}" Content="─" Click="Minimize_Click"/>
                 <Button Style="{StaticResource WindowButton}" Content="□" Click="Maximize_Click"/>
                 <Button Style="{StaticResource WindowButton}" Content="×" Click="Close_Click"/>
@@ -299,6 +315,10 @@
                     <Button Content="+" Style="{StaticResource PlayerControlButton}" Click="AddFiles_Click"/>
                     <Button Content="🔀" Style="{StaticResource PlayerControlButton}" Click="Shuffle_Click" x:Name="ShuffleButton"/>
                     <Button Content="🔁" Style="{StaticResource PlayerControlButton}" Click="Repeat_Click" x:Name="RepeatButton"/>
+                    <Button Content="🌙" 
+                        Style="{StaticResource PlayerControlButton}"
+                        Click="ThemeToggle_Click"
+                        x:Name="ThemeToggleButton"/>
                     <Button Content="⚙" Style="{StaticResource PlayerControlButton}" Click="Settings_Click"/>
                 </StackPanel>
             </Grid>
@@ -321,12 +341,14 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="24,18,24,18" VerticalAlignment="Center">
                     <Border Width="64" Height="64" CornerRadius="12" Margin="0,0,16,0">
                         <Border.Background>
-                            <ImageBrush x:Name="AlbumCover" Stretch="UniformToFill"/>
+                            <ImageBrush x:Name="AlbumCoverImage" Stretch="UniformToFill"/>
                         </Border.Background>
                         <Border.Effect>
                             <DropShadowEffect ShadowDepth="3" BlurRadius="6" Opacity="0.3"/>
                         </Border.Effect>
                     </Border>
+
+
                     <StackPanel VerticalAlignment="Center">
 
 
