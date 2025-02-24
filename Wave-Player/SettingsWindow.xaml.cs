@@ -201,6 +201,7 @@ namespace Wave_Player
 
 
 
+
         private bool IsValidColor(string color)
         {
             try

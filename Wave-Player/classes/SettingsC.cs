@@ -69,11 +69,13 @@ namespace Wave_Player.classes
             {
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(SettingsFilePath, json);
+                Console.WriteLine("Settings saved successfully.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error saving settings: {ex.Message}");
             }
         }
+
     }
 }

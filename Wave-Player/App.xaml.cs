@@ -1,14 +1,17 @@
 ﻿using System.Windows;
 using System.Windows.Media;
+using Wave_Player.classes;
 
 namespace Wave_Player
 {
     public partial class App : Application
     {
+        private SettingsC _settings;
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
-            LoadSettings();
+            SettingsC settings = SettingsC.Load();
+            Current.Resources["ThemePrimaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.Theme.PrimaryColor));
+            Application.Current.Resources["ThemeSecondaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.Theme.SecondaryColor));
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -19,11 +22,12 @@ namespace Wave_Player
 
         private void LoadSettings()
         {
+            _settings = SettingsC.Load();
         }
 
         private void SaveSettings()
         {
-            Settings.Default.Save();
+            _settings?.Save();
         }
 
         public void ApplyThemeColors(string primaryColor, string secondaryColor)

@@ -7,254 +7,6 @@
         AllowsTransparency="True"
         ResizeMode="NoResize">
 
-    <Window.Resources>
-        <Style x:Key="ModernSlider" TargetType="Slider">
-            <Setter Property="Foreground" Value="#0080FF"/>
-            <Setter Property="Background" Value="#404040"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Slider">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Border x:Name="TrackBackground" 
-                                    Grid.Row="1" 
-                                    Height="4" 
-                                    Background="{TemplateBinding Background}" 
-                                    CornerRadius="2"/>
-                            <Track x:Name="PART_Track" Grid.Row="1">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Command="Slider.DecreaseLarge">
-                                        <RepeatButton.Template>
-                                            <ControlTemplate TargetType="RepeatButton">
-                                                <Border Height="4" 
-                                                        Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Slider}}" 
-                                                        CornerRadius="2"/>
-                                            </ControlTemplate>
-                                        </RepeatButton.Template>
-                                    </RepeatButton>
-                                </Track.DecreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb Width="16" Height="16">
-                                        <Thumb.Template>
-                                            <ControlTemplate TargetType="Thumb">
-                                                <Grid>
-                                                    <Ellipse Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Slider}}"/>
-                                                </Grid>
-                                            </ControlTemplate>
-                                        </Thumb.Template>
-                                    </Thumb>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ModernButton" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Grid>
-                            <Border x:Name="backgroundBorder" 
-                            CornerRadius="10">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#0080FF" Offset="0"/>
-                                        <GradientStop Color="#00D1FF" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-
-                                <Border.Effect>
-                                    <BlurEffect Radius="0"/>
-                                </Border.Effect>
-                            </Border>
-
-                            <Border x:Name="highlightBorder"
-                            CornerRadius="10"
-                            Opacity="0">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                        <GradientStop Color="#50FFFFFF" Offset="0"/>
-                                        <GradientStop Color="Transparent" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                            </Border>
-
-                            <ContentPresenter x:Name="contentPresenter"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    TextBlock.FontWeight="{TemplateBinding FontWeight}"
-                                    Margin="{TemplateBinding Padding}">
-                                <ContentPresenter.Effect>
-                                    <DropShadowEffect ShadowDepth="0" 
-                                            BlurRadius="10" 
-                                            Opacity="0.3" 
-                                            Color="White"/>
-                                </ContentPresenter.Effect>
-                            </ContentPresenter>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0.4"/>
-                                <Setter TargetName="backgroundBorder" Property="Effect">
-                                    <Setter.Value>
-                                        <BlurEffect Radius="0.5"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="highlightBorder" Property="Opacity" Value="0.2"/>
-                                <Setter TargetName="contentPresenter" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TranslateTransform Y="1"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="OutlinedButton" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#0080FF"/>
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border x:Name="border" 
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="#0080FF"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="10">
-                            <ContentPresenter x:Name="contentPresenter"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    TextBlock.Foreground="{TemplateBinding Foreground}"
-                                    Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#15FF3366"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#25FF3366"/>
-                                <Setter TargetName="contentPresenter" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <TranslateTransform Y="1"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="ThemeRadioButton" TargetType="{x:Type RadioButton}">
-            <Setter Property="Foreground" Value="#B3B3B3"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type RadioButton}">
-                        <Border x:Name="border" 
-                                Background="#242424" 
-                                BorderThickness="1"
-                                BorderBrush="#404040"
-                                CornerRadius="8"
-                                Padding="12,8">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Ellipse x:Name="radioCircle"
-                                        Width="18" 
-                                        Height="18"
-                                        Stroke="#0080FF"
-                                        StrokeThickness="2"
-                                        Fill="Transparent"/>
-                                <Ellipse x:Name="radioFill"
-                                        Width="10" 
-                                        Height="10"
-                                        Fill="#00D1FF"
-                                        Opacity="0"/>
-                                <ContentPresenter Grid.Column="1" 
-                                                Margin="12,0,0,0"
-                                                VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="radioFill" Property="Opacity" Value="1"/>
-                                <Setter TargetName="border" Property="Background" Value="#2A2A2A"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#2A2A2A"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ModernTextBox" TargetType="{x:Type TextBox}">
-            <Setter Property="Background" Value="#242424"/>
-            <Setter Property="Foreground" Value="#B3B3B3"/>
-            <Setter Property="BorderBrush" Value="#404040"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TextBox}">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                        Focusable="false"
-                                        HorizontalScrollBarVisibility="Hidden"
-                                        VerticalScrollBarVisibility="Hidden"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="BorderBrush" Value="#0080FF"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="true">
-                                <Setter Property="BorderBrush" Value="#0080FF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="28"/>
@@ -402,22 +154,22 @@
                                      Margin="0,0,0,16"/>
                             <CheckBox x:Name="AutoPlayCheckBox"
                                     Content="Auto-play when track added" 
-                                    Foreground="#B3B3B3"
+                                    Style="{StaticResource ModernCheckBox}"
                                     Margin="0,0,0,12"/>
 
                             <CheckBox x:Name="RememberTrackCheckBox"
                                     Content="Remember last played track" 
-                                    Foreground="#B3B3B3"
+                                    Style="{StaticResource ModernCheckBox}"
                                     Margin="0,0,0,12"/>
 
                             <CheckBox x:Name="AutoShuffleCheckBox"
                                     Content="Auto shuffle after starting"
-                                    Foreground="#B3B3B3"
+                                    Style="{StaticResource ModernCheckBox}"
                                     Margin="0,0,0,12"/>
 
                             <CheckBox x:Name="NotificationsCheckBox"
                                     Content="Show notifications" 
-                                    Foreground="#B3B3B3"/>
+                                    Style="{StaticResource ModernCheckBox}"/>
                         </StackPanel>
                     </Border>
 
