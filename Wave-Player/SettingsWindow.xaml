@@ -410,6 +410,11 @@
                                     Foreground="#B3B3B3"
                                     Margin="0,0,0,12"/>
 
+                            <CheckBox x:Name="AutoShuffleCheckBox"
+                                    Content="Auto shuffle after starting"
+                                    Foreground="#B3B3B3"
+                                    Margin="0,0,0,12"/>
+
                             <CheckBox x:Name="NotificationsCheckBox"
                                     Content="Show notifications" 
                                     Foreground="#B3B3B3"/>

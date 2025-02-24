@@ -30,9 +30,8 @@ namespace Wave_Player
         private readonly string _saveFilePath = "playlist.json";
         private readonly string _lastTrackFilePath = "lastTrack.json";
         private TimeSpan _pausedPosition;
-        private MediaElement AlbumCoverMedia = new MediaElement(); // Initialize here
+        private MediaElement AlbumCoverMedia;
 
-        private bool isLightTheme = false;
 
         public MainWindow()
         {
@@ -40,13 +39,12 @@ namespace Wave_Player
             InitializeComponent();
             LoadSettings();
 
-            UpdateThemeColors(_settings?.Theme?.PrimaryColor ?? "#FFFFFF", _settings?.Theme?.SecondaryColor ?? "#000000");
+            UpdateThemeColors(_settings.Theme.PrimaryColor, _settings.Theme.SecondaryColor);
 
             InitializeFileWatcher();
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            _timer.Tick += UpdateProgress!;
+            _timer.Tick += UpdateProgress;
             LoadLastTrack();
-            ApplyTheme(isLightTheme);
         }
 
         private void LoadSettings()
@@ -54,6 +52,7 @@ namespace Wave_Player
             _settings = SettingsC.Load();
             MediaPlayer.Volume = _settings.DefaultVolume;
             VolumeSlider.Value = _settings.DefaultVolume;
+            _isShuffleEnabled = _settings.AutoShuffle;
 
             LoadMusicFiles();
         }
@@ -134,9 +133,9 @@ namespace Wave_Player
             }
         }
 
-        private void Play_Click(object? sender, RoutedEventArgs? e)
+        private void Play_Click(object sender, RoutedEventArgs e)
         {
-            Button playButton = (Button)sender!;
+            Button playButton = (Button)sender;
 
             PlayButton.Background = new LinearGradientBrush(
             (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
@@ -169,6 +168,8 @@ namespace Wave_Player
             }
         }
 
+
+
         private void Pause_Click(object sender, RoutedEventArgs e)
         {
             if (MediaPlayer.Source != null)
@@ -181,6 +182,7 @@ namespace Wave_Player
                 PauseButton.Visibility = Visibility.Collapsed;
             }
         }
+
 
         private void Previous_Click(object sender, RoutedEventArgs e)
         {
@@ -358,6 +360,9 @@ namespace Wave_Player
             MediaPlayer.Volume = newValue;
         }
 
+
+
+
         private void Mute_Click(object sender, RoutedEventArgs e)
         {
             double previousVolume = 0.2;
@@ -471,6 +476,8 @@ namespace Wave_Player
             }
         }
 
+
+
         private void ResetAnimation(object sender, EventArgs e)
         {
             //CurrentTrackNameTransform.X = -150;
@@ -535,43 +542,7 @@ namespace Wave_Player
             }
         }
 
-        private void ThemeToggle_Click(object sender, RoutedEventArgs e)
-        {
-            isLightTheme = !isLightTheme;
-            ApplyTheme(isLightTheme);
-            ThemeToggleButton.Content = isLightTheme ? "☀️" : "🌙";
-        }
-
-        private void ApplyTheme(bool isLight)
-        {
-            var window = Application.Current.MainWindow;
-            if (window != null)
-            {
-                // Update background colors
-                var windowBackground = isLight ? (SolidColorBrush)Resources["WindowBackground_Light"] : (SolidColorBrush)Resources["WindowBackground_Dark"];
-                var secondaryBackground = isLight ? (SolidColorBrush)Resources["SecondaryBackground_Light"] : (SolidColorBrush)Resources["SecondaryBackground_Dark"];
-                var titleBarBackground = isLight ? (SolidColorBrush)Resources["TitleBarBackground_Light"] : (SolidColorBrush)Resources["TitleBarBackground_Dark"];
-
-                // Apply the colors
-                Resources["WindowBackground"] = windowBackground;
-                Resources["SecondaryBackground"] = secondaryBackground;
-                Resources["TitleBarBackground"] = titleBarBackground;
-
-                // Update the Window's background directly
-                this.Background = windowBackground;
-
-                // Update text colors
-                var textColor = isLight ? Colors.Black : Colors.White;
-                var textBrush = new SolidColorBrush(textColor);
-
-                TrackList.Foreground = textBrush;
-                CurrentTrackName.Foreground = textBrush;
-            }
-        }
     }
 }
-
-
-
 
 

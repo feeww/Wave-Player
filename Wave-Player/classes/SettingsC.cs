@@ -1,4 +1,5 @@
 ﻿using System;
+using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Text.Json;
 using System.Windows.Media;
@@ -11,6 +12,7 @@ namespace Wave_Player.classes
         public double CrossfadeDuration { get; set; } = 2;
         public bool AutoPlayEnabled { get; set; } = false;
         public bool RememberLastTrack { get; set; } = true;
+        public bool AutoShuffle { get; set; } = false;
         public bool ShowNotifications { get; set; } = true;
         public string DefaultMusicFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
         public ThemeSettings Theme { get; set; } = new ThemeSettings();

@@ -205,7 +205,7 @@
             AutoReverse="False"/>
         </Storyboard>
 
-       
+
 
         <Style x:Key="TrackListBoxStyle" TargetType="{x:Type ListBox}">
             <Setter Property="Background" Value="Transparent"/>
@@ -255,22 +255,6 @@
             </Setter>
         </Style>
 
-        <SolidColorBrush x:Key="WindowBackground_Light" Color="#F5F5F5"/>
-        <SolidColorBrush x:Key="WindowBackground_Dark" Color="#0A0A0A"/>
-        <SolidColorBrush x:Key="SecondaryBackground_Light" Color="#E5E5E5"/>
-        <SolidColorBrush x:Key="SecondaryBackground_Dark" Color="#181818"/>
-        <SolidColorBrush x:Key="TitleBarBackground_Light" Color="#DEDEDE"/>
-        <SolidColorBrush x:Key="TitleBarBackground_Dark" Color="#050505"/>
-
-        <Style x:Key="ThemeToggleButton" TargetType="{x:Type Button}" BasedOn="{StaticResource PlayerControlButton}">
-            <Setter Property="Content" Value="🌙"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsLightTheme, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Value="True">
-                    <Setter Property="Content" Value="☀️"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-
     </Window.Resources>
 
     <Grid>
@@ -293,7 +277,7 @@
             </StackPanel>
         </Grid>
 
-        <Grid Grid.Row="1" Background="#0A0A0A">
+        <Grid Grid.Row="1" Background="White">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -315,10 +299,7 @@
                     <Button Content="+" Style="{StaticResource PlayerControlButton}" Click="AddFiles_Click"/>
                     <Button Content="🔀" Style="{StaticResource PlayerControlButton}" Click="Shuffle_Click" x:Name="ShuffleButton"/>
                     <Button Content="🔁" Style="{StaticResource PlayerControlButton}" Click="Repeat_Click" x:Name="RepeatButton"/>
-                    <Button Content="🌙" 
-                        Style="{StaticResource PlayerControlButton}"
-                        Click="ThemeToggle_Click"
-                        x:Name="ThemeToggleButton"/>
+
                     <Button Content="⚙" Style="{StaticResource PlayerControlButton}" Click="Settings_Click"/>
                 </StackPanel>
             </Grid>

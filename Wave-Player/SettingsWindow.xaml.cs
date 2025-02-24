@@ -37,6 +37,7 @@ namespace Wave_Player
             CrossfadeSlider.Value = _settings.CrossfadeDuration;
             AutoPlayCheckBox.IsChecked = _settings.AutoPlayEnabled;
             RememberTrackCheckBox.IsChecked = _settings.RememberLastTrack;
+            AutoShuffleCheckBox.IsChecked = _settings.AutoShuffle;
             NotificationsCheckBox.IsChecked = _settings.ShowNotifications;
             MusicFolderTextBox.Text = _settings.DefaultMusicFolder;
         }
@@ -47,6 +48,7 @@ namespace Wave_Player
             _settings.CrossfadeDuration = CrossfadeSlider.Value;
             _settings.AutoPlayEnabled = AutoPlayCheckBox.IsChecked ?? false;
             _settings.RememberLastTrack = RememberTrackCheckBox.IsChecked ?? false;
+            _settings.AutoShuffle = AutoShuffleCheckBox.IsChecked ?? false;
             _settings.ShowNotifications = NotificationsCheckBox.IsChecked ?? false;
             _settings.DefaultMusicFolder = MusicFolderTextBox.Text;
             _settings.Save();
@@ -166,15 +168,29 @@ namespace Wave_Player
             string primaryColor = PrimaryColorTextBox.Text;
             string secondaryColor = SecondaryColorTextBox.Text;
 
-            if (!IsValidColor(primaryColor) || !IsValidColor(secondaryColor))
+            if (!string.IsNullOrEmpty(primaryColor) && !IsValidColor(primaryColor))
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Please select valid colors.", "Invalid Color", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show("Please select a valid primary color.", "Invalid Color", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            _settings.Theme.PrimaryColor = primaryColor;
-            _settings.Theme.SecondaryColor = secondaryColor;
-            _settings.Save();
+            if (!string.IsNullOrEmpty(secondaryColor) && !IsValidColor(secondaryColor))
+            {
+                System.Windows.MessageBox.Show("Please select a valid secondary color.", "Invalid Color", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(primaryColor))
+            {
+                _settings.Theme.PrimaryColor = primaryColor;
+            }
+
+            if (!string.IsNullOrEmpty(secondaryColor))
+            {
+                _settings.Theme.SecondaryColor = secondaryColor;
+            }
+
+            SaveSettings();
 
             var mainWindow = (MainWindow)Owner;
             mainWindow.UpdateThemeColors(_settings.Theme.PrimaryColor, _settings.Theme.SecondaryColor);
@@ -182,6 +198,7 @@ namespace Wave_Player
             DialogResult = true;
             Close();
         }
+
 
 
         private bool IsValidColor(string color)
