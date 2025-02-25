@@ -31,6 +31,9 @@ namespace Wave_Player
         private readonly string _lastTrackFilePath = "lastTrack.json";
         private TimeSpan _pausedPosition;
         private MediaElement AlbumCoverMedia;
+        private HashSet<int> _multiRepeatTracks = new HashSet<int>();
+        private bool _isMultiRepeatEnabled = false;
+        private readonly string _multiRepeatFilePath = "multiRepeat.json";
 
 
         public MainWindow()
@@ -45,6 +48,7 @@ namespace Wave_Player
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _timer.Tick += UpdateProgress;
             LoadLastTrack();
+            LoadMultiRepeatState();
         }
 
         private void LoadSettings()
@@ -91,6 +95,8 @@ namespace Wave_Player
                     TrackList.Items.Add(Path.GetFileName(file));
                 }
             }
+
+            Dispatcher.Invoke(() => UpdateTrackListAppearance(), DispatcherPriority.Loaded);
         }
 
         private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -103,7 +109,11 @@ namespace Wave_Player
 
         private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
-        private void Close_Click(object sender, RoutedEventArgs e) => Close();
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            SaveMultiRepeatState();
+            Close();
+        }
 
         private void AddFiles_Click(object sender, RoutedEventArgs e)
         {
@@ -280,6 +290,24 @@ namespace Wave_Player
             {
                 MediaPlayer.Position = TimeSpan.Zero;
                 MediaPlayer.Play();
+            }
+            else if (_isMultiRepeatEnabled && _multiRepeatTracks.Count > 0)
+            {
+                List<int> repeatTracks = _multiRepeatTracks.ToList();
+
+                int currentMultiRepeatIndex = repeatTracks.IndexOf(TrackList.SelectedIndex);
+
+                if (currentMultiRepeatIndex != -1)
+                {
+                    int nextIndex = (currentMultiRepeatIndex + 1) % repeatTracks.Count;
+                    TrackList.SelectedIndex = repeatTracks[nextIndex];
+                }
+                else
+                {
+                    TrackList.SelectedIndex = repeatTracks[0];
+                }
+
+                Play_Click(null, null);
             }
             else if (_isShuffleEnabled && _trackPaths.Count > 1)
             {
@@ -539,6 +567,113 @@ namespace Wave_Player
             catch
             {
                 return false;
+            }
+        }
+
+        private void MultiRepeat_Click(object sender, RoutedEventArgs e)
+        {
+            _isMultiRepeatEnabled = !_isMultiRepeatEnabled;
+
+            Button multiRepeatButton = (Button)sender;
+            if (_isMultiRepeatEnabled)
+            {
+                multiRepeatButton.Foreground = new LinearGradientBrush(
+                    (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+                    (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+                    new Point(0, 0),
+                    new Point(1, 1));
+            }
+            else
+            {
+                multiRepeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B3B3B3"));
+                _multiRepeatTracks.Clear();
+                UpdateTrackListAppearance();
+            }
+        }
+
+        private void ToggleMultiRepeat(int trackIndex)
+        {
+            if (_isMultiRepeatEnabled)
+            {
+                if (_multiRepeatTracks.Contains(trackIndex))
+                {
+                    _multiRepeatTracks.Remove(trackIndex);
+                }
+                else
+                {
+                    _multiRepeatTracks.Add(trackIndex);
+                }
+                UpdateTrackListAppearance();
+            }
+        }
+
+        // Метод для оновлення вигляду списку треків (позначення вибраних для MultiRepeat)
+        private void UpdateTrackListAppearance()
+        {
+            for (int i = 0; i < TrackList.Items.Count; i++)
+            {
+                ListBoxItem item = (ListBoxItem)TrackList.ItemContainerGenerator.ContainerFromIndex(i);
+                if (item != null)
+                {
+                    if (_multiRepeatTracks.Contains(i))
+                    {
+                        item.Foreground = new LinearGradientBrush(
+                            (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+                            (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+                            new Point(0, 0),
+                            new Point(1, 1));
+                    }
+                    else
+                    {
+                        item.Foreground = new SolidColorBrush(Colors.White);
+                    }
+                }
+            }
+        }
+
+        private void TrackList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (_isMultiRepeatEnabled && TrackList.SelectedIndex != -1)
+            {
+                ToggleMultiRepeat(TrackList.SelectedIndex);
+                e.Handled = true; 
+            }
+            else
+            {
+                TrackList_SelectionChanged(sender, null);
+            }
+        }
+
+        private void SaveMultiRepeatState()
+        {
+            if (_isMultiRepeatEnabled)
+            {
+                System.IO.File.WriteAllText(_multiRepeatFilePath, JsonSerializer.Serialize(_multiRepeatTracks));
+            }
+        }
+
+        private void LoadMultiRepeatState()
+        {
+            if (System.IO.File.Exists(_multiRepeatFilePath))
+            {
+                try
+                {
+                    _multiRepeatTracks = JsonSerializer.Deserialize<HashSet<int>>(System.IO.File.ReadAllText(_multiRepeatFilePath)) ?? new HashSet<int>();
+                    if (_multiRepeatTracks.Count > 0)
+                    {
+                        _isMultiRepeatEnabled = true;
+                        MultiRepeatButton.Foreground = new LinearGradientBrush(
+                            (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+                            (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+                            new Point(0, 0),
+                            new Point(1, 1));
+                        UpdateTrackListAppearance();
+                    }
+                }
+                catch (Exception)
+                {
+                    _multiRepeatTracks = new HashSet<int>();
+                }
             }
         }
 
