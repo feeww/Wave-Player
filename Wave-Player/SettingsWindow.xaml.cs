@@ -86,7 +86,6 @@ namespace Wave_Player
 
         private void ApplyThemeColors()
         {
-            // Create a gradient brush
             var gradientBrush = new LinearGradientBrush
             {
                 StartPoint = new Point(0, 0),
@@ -95,7 +94,6 @@ namespace Wave_Player
             gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor), 0));
             gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor), 1));
 
-            // Update sliders
             var modernSliderStyle = FindResource("ModernSlider") as Style;
             if (modernSliderStyle != null)
             {
@@ -170,13 +168,13 @@ namespace Wave_Player
 
             if (!string.IsNullOrEmpty(primaryColor) && !IsValidColor(primaryColor))
             {
-                System.Windows.MessageBox.Show("Please select a valid primary color.", "Invalid Color", MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationSystem.Show("Please select a valid primary color.", NotificationType.Error);
                 return;
             }
 
             if (!string.IsNullOrEmpty(secondaryColor) && !IsValidColor(secondaryColor))
             {
-                System.Windows.MessageBox.Show("Please select a valid secondary color.", "Invalid Color", MessageBoxButton.OK, MessageBoxImage.Error);
+                NotificationSystem.Show("Please select a valid secondary color.", NotificationType.Error);
                 return;
             }
 
@@ -190,6 +188,9 @@ namespace Wave_Player
                 _settings.Theme.SecondaryColor = secondaryColor;
             }
 
+            if (NotificationsCheckBox.IsChecked == true)
+                {NotificationSystem.Show("Settings applied successfully!", NotificationType.Success);}
+            
             SaveSettings();
 
             var mainWindow = (MainWindow)Owner;

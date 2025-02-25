@@ -42,6 +42,9 @@ namespace Wave_Player
             InitializeComponent();
             LoadSettings();
 
+            NotificationSystem.Initialize(this);
+            NotificationSystem.Show($"Welcome back to Wave!", NotificationType.Success, 6000);
+
             UpdateThemeColors(_settings.Theme.PrimaryColor, _settings.Theme.SecondaryColor);
 
             InitializeFileWatcher();
@@ -607,7 +610,6 @@ namespace Wave_Player
             }
         }
 
-        // Метод для оновлення вигляду списку треків (позначення вибраних для MultiRepeat)
         private void UpdateTrackListAppearance()
         {
             for (int i = 0; i < TrackList.Items.Count; i++)
