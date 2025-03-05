@@ -68,7 +68,7 @@ namespace Wave_Player
         {
             if (Directory.Exists(_settings.DefaultMusicFolder))
             {
-                _fileWatcher = new FileSystemWatcher(_settings.DefaultMusicFolder, "*.mp3");
+                _fileWatcher = new FileSystemWatcher(_settings.DefaultMusicFolder, "*.mp3;*.wav;*.flac;*.m4a");
                 _fileWatcher.Created += OnFileChanged;
                 _fileWatcher.Deleted += OnFileChanged;
                 _fileWatcher.Renamed += OnFileChanged;
@@ -91,15 +91,20 @@ namespace Wave_Player
 
             if (Directory.Exists(_settings.DefaultMusicFolder))
             {
-                string[] mp3Files = Directory.GetFiles(_settings.DefaultMusicFolder, "*.mp3");
-                foreach (string file in mp3Files)
+                string[] supportedExtensions = { "*.mp3", "*.wav", "*.flac", "*.m4a" };
+
+                foreach (string extension in supportedExtensions)
                 {
-                    _trackPaths.Add(file);
-                    TrackList.Items.Add(Path.GetFileName(file));
+                    string[] musicFiles = Directory.GetFiles(_settings.DefaultMusicFolder, extension);
+                    foreach (string file in musicFiles)
+                    {
+                        _trackPaths.Add(file);
+                        TrackList.Items.Add(Path.GetFileName(file));
+                    }
                 }
             }
 
-            Dispatcher.Invoke(() => UpdateTrackListAppearance(), DispatcherPriority.Loaded);
+            Dispatcher.Invoke(UpdateTrackListAppearance, DispatcherPriority.Loaded);
         }
 
         private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -120,7 +125,12 @@ namespace Wave_Player
 
         private void AddFiles_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new() { Multiselect = true, Filter = "MP3 Files (*.mp3)|*.mp3" };
+            OpenFileDialog openFileDialog = new()
+            {
+                Multiselect = true,
+                Filter = "Audio Files|*.mp3;*.wav;*.flac;*.m4a|MP3 Files (*.mp3)|*.mp3|WAV Files (*.wav)|*.wav|FLAC Files (*.flac)|*.flac|M4A Files (*.m4a)|*.m4a"
+            };
+
             if (openFileDialog.ShowDialog() == true)
             {
                 foreach (string file in openFileDialog.FileNames)
@@ -390,9 +400,6 @@ namespace Wave_Player
             VolumeSlider.Value = newValue;
             MediaPlayer.Volume = newValue;
         }
-
-
-
 
         private void Mute_Click(object sender, RoutedEventArgs e)
         {
