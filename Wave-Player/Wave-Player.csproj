@@ -12,6 +12,10 @@
   <ItemGroup>
     <None Remove="assets\dance-smile.gif" />
     <None Remove="assets\favicon.ico" />
+    <None Remove="assets\Next.png" />
+    <None Remove="assets\Pause.png" />
+    <None Remove="assets\Play.png" />
+    <None Remove="assets\Previous.png" />
     <None Remove="assets\wave.gif" />
     <None Remove="assets\wave.png" />
   </ItemGroup>
@@ -28,6 +32,10 @@
     <Resource Include="assets\favicon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="assets\Next.png" />
+    <Resource Include="assets\Pause.png" />
+    <Resource Include="assets\Play.png" />
+    <Resource Include="assets\Previous.png" />
     <Resource Include="assets\wave.png" />
   </ItemGroup>
 

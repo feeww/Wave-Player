@@ -14,11 +14,15 @@ using System.Windows.Threading;
 using Microsoft.Win32;
 using TagLib;
 using Wave_Player.classes;
+using System.Runtime.InteropServices;
+using System.Windows.Shell;
+using System.Drawing;
 
 namespace Wave_Player
 {
     public partial class MainWindow : Window
     {
+
         private List<string> _trackPaths = new();
         private DispatcherTimer _timer;
         private bool _isDraggingProgress = false;
@@ -34,7 +38,6 @@ namespace Wave_Player
         private HashSet<int> _multiRepeatTracks = new HashSet<int>();
         private bool _isMultiRepeatEnabled = false;
         private readonly string _multiRepeatFilePath = "multiRepeat.json";
-
 
         public MainWindow()
         {
@@ -52,6 +55,7 @@ namespace Wave_Player
             _timer.Tick += UpdateProgress;
             LoadLastTrack();
             LoadMultiRepeatState();
+
         }
 
         private void LoadSettings()
@@ -75,6 +79,7 @@ namespace Wave_Player
                 _fileWatcher.EnableRaisingEvents = true;
             }
         }
+
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
@@ -161,10 +166,10 @@ namespace Wave_Player
             Button playButton = (Button)sender;
 
             PlayButton.Background = new LinearGradientBrush(
-            (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
-            (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
-            new Point(0, 0),
-            new Point(1, 1));
+            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+            new System.Windows.Point(0, 0),
+            new System.Windows.Point(1, 1));
 
             if (TrackList.SelectedIndex >= 0)
             {
@@ -186,8 +191,19 @@ namespace Wave_Player
 
                 PlayButton.Visibility = Visibility.Collapsed;
                 PauseButton.Visibility = Visibility.Visible;
+                
 
                 SaveLastTrack();
+                UpdateTaskbarThumbButton();
+            }
+            if (TrackList.SelectedIndex != -1)
+            {
+                _playHistory.Add(TrackList.SelectedIndex);
+
+                if (_playHistory.Count > MAX_PLAY_HISTORY)
+                {
+                    _playHistory.RemoveAt(0);
+                }
             }
         }
 
@@ -204,24 +220,56 @@ namespace Wave_Player
                 PlayButton.Visibility = Visibility.Visible;
                 PauseButton.Visibility = Visibility.Collapsed;
             }
+            UpdateTaskbarThumbButton();
         }
 
+
+        private List<int> _playHistory = new List<int>();
+        private const int MAX_PLAY_HISTORY = 10;
 
         private void Previous_Click(object sender, RoutedEventArgs e)
         {
-            if (TrackList.SelectedIndex >= 0)
+            if (_trackPaths.Count == 0) return;
+
+            if (MediaPlayer.Position.TotalSeconds >= 5)
             {
-                if (MediaPlayer.Position.TotalSeconds >= 5)
-                {
-                    MediaPlayer.Position = TimeSpan.Zero;
-                }
-                else if (TrackList.SelectedIndex > 0)
+                MediaPlayer.Position = TimeSpan.Zero;
+                return;
+            }
+
+            if (!_isShuffleEnabled)
+            {
+                if (TrackList.SelectedIndex > 0)
                 {
                     TrackList.SelectedIndex--;
                 }
-                Play_Click(null, null);
+                else
+                {
+                    TrackList.SelectedIndex = _trackPaths.Count - 1;
+                }
             }
+            else
+            {
+                List<int> playedIndexes = new List<int> { TrackList.SelectedIndex };
+
+                List<int> availableIndexes = Enumerable.Range(0, _trackPaths.Count)
+                    .Where(i => !playedIndexes.Contains(i))
+                    .ToList();
+
+                if (availableIndexes.Count == 0)
+                {
+                    availableIndexes = Enumerable.Range(0, _trackPaths.Count)
+                        .Where(i => i != TrackList.SelectedIndex)
+                        .ToList();
+                }
+
+                int newIndex = availableIndexes[_random.Next(availableIndexes.Count)];
+                TrackList.SelectedIndex = newIndex;
+            }
+
+            Play_Click(null, null);
         }
+
 
         private void Next_Click(object sender, RoutedEventArgs e)
         {
@@ -230,16 +278,30 @@ namespace Wave_Player
                 if (_isShuffleEnabled)
                 {
                     int newIndex;
-                    do
+                    List<int> availableTracks = Enumerable.Range(0, _trackPaths.Count)
+                        .Where(i => i != TrackList.SelectedIndex &&
+                                    !_playHistory.Contains(i))
+                        .ToList();
+
+                    if (availableTracks.Count > 0)
                     {
-                        newIndex = _random.Next(_trackPaths.Count);
-                    } while (newIndex == TrackList.SelectedIndex);
+                        newIndex = availableTracks[_random.Next(availableTracks.Count)];
+                    }
+                    else
+                    {
+                        do
+                        {
+                            newIndex = _random.Next(_trackPaths.Count);
+                        } while (newIndex == TrackList.SelectedIndex);
+                    }
+
                     TrackList.SelectedIndex = newIndex;
                 }
                 else if (TrackList.SelectedIndex < _trackPaths.Count - 1)
                 {
                     TrackList.SelectedIndex++;
                 }
+
                 Play_Click(null, null);
             }
         }
@@ -252,14 +314,14 @@ namespace Wave_Player
             if (_isShuffleEnabled && !_isRepeatEnabled)
             {
                 shuffleButton.Foreground = new LinearGradientBrush(
-                    (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
-                    (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
-                    new Point(0, 0),
-                    new Point(1, 1));
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
             }
             else
             {
-                shuffleButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
+                shuffleButton.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
             }
         }
 
@@ -271,14 +333,14 @@ namespace Wave_Player
             if (_isRepeatEnabled && !_isShuffleEnabled)
             {
                 repeatButton.Foreground = new LinearGradientBrush(
-                    (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
-                    (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
-                    new Point(0, 0),
-                    new Point(1, 1));
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
             }
             else
             {
-                repeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
+                repeatButton.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
             }
         }
 
@@ -533,11 +595,11 @@ namespace Wave_Player
                 var newStyle = new Style(typeof(Button), playButtonStyle);
                 var gradientBrush = new LinearGradientBrush
                 {
-                    StartPoint = new Point(0, 0),
-                    EndPoint = new Point(1, 1)
+                    StartPoint = new System.Windows.Point(0, 0),
+                    EndPoint = new System.Windows.Point(1, 1)
                 };
-                gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(primaryColor), 0));
-                gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(secondaryColor), 1));
+                gradientBrush.GradientStops.Add(new GradientStop((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(primaryColor), 0));
+                gradientBrush.GradientStops.Add(new GradientStop((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(secondaryColor), 1));
 
                 newStyle.Setters.Add(new Setter(Button.BackgroundProperty, gradientBrush));
                 Resources["PlayPauseButton"] = newStyle;
@@ -546,32 +608,32 @@ namespace Wave_Player
             if (_isShuffleEnabled)
             {
                 ShuffleButton.Foreground = new LinearGradientBrush(
-                    (Color)ColorConverter.ConvertFromString(primaryColor),
-                    (Color)ColorConverter.ConvertFromString(secondaryColor),
-                    new Point(0, 0),
-                    new Point(1, 1));
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(primaryColor),
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(secondaryColor),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
             }
 
             if (_isRepeatEnabled)
             {
                 RepeatButton.Foreground = new LinearGradientBrush(
-                    (Color)ColorConverter.ConvertFromString(primaryColor),
-                    (Color)ColorConverter.ConvertFromString(secondaryColor),
-                    new Point(0, 0),
-                    new Point(1, 1));
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(primaryColor),
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(secondaryColor),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
             }
 
-            Application.Current.Resources["PrimaryColor"] = (Color)ColorConverter.ConvertFromString(primaryColor);
-            Application.Current.Resources["SecondaryColor"] = (Color)ColorConverter.ConvertFromString(secondaryColor);
+            Application.Current.Resources["PrimaryColor"] = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(primaryColor);
+            Application.Current.Resources["SecondaryColor"] = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(secondaryColor);
 
-            ProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(primaryColor));
-            VolumeSlider.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(primaryColor));
+            ProgressBar.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(primaryColor));
+            VolumeSlider.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(primaryColor));
         }
         private bool IsValidColor(string color)
         {
             try
             {
-                ColorConverter.ConvertFromString(color);
+                System.Windows.Media.ColorConverter.ConvertFromString(color);
                 return true;
             }
             catch
@@ -588,14 +650,14 @@ namespace Wave_Player
             if (_isMultiRepeatEnabled)
             {
                 multiRepeatButton.Foreground = new LinearGradientBrush(
-                    (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
-                    (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
-                    new Point(0, 0),
-                    new Point(1, 1));
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+                    new System.Windows.Point(0, 0),
+                    new System.Windows.Point(1, 1));
             }
             else
             {
-                multiRepeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
+                multiRepeatButton.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
                 _multiRepeatTracks.Clear();
                 UpdateTrackListAppearance();
             }
@@ -627,10 +689,10 @@ namespace Wave_Player
                     if (_multiRepeatTracks.Contains(i))
                     {
                         item.Foreground = new LinearGradientBrush(
-                            (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
-                            (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
-                            new Point(0, 0),
-                            new Point(1, 1));
+                            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
+                            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
+                            new System.Windows.Point(0, 0),
+                            new System.Windows.Point(1, 1));
                     }
                     else
                     {
@@ -670,7 +732,7 @@ namespace Wave_Player
                     _multiRepeatTracks = JsonSerializer.Deserialize<HashSet<int>>(System.IO.File.ReadAllText(_multiRepeatFilePath)) ?? new HashSet<int>();
 
                     _isMultiRepeatEnabled = false;
-                    MultiRepeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
+                    MultiRepeatButton.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E0E0E0"));
 
                     if (_multiRepeatTracks.Count > 0)
                     {
@@ -682,6 +744,62 @@ namespace Wave_Player
                     _multiRepeatTracks = new HashSet<int>();
                 }
             }
+        }
+
+        private void ThumbPrevious_Click(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Previous_Click(sender, null);
+            });
+        }
+
+        private void ThumbPlayPause_Click(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (TrackList.SelectedIndex >= 0 && MediaPlayer.Source != null)
+                {
+                    if (PlayButton.Visibility == Visibility.Visible)
+                    {
+                        Play_Click(PlayButton, null);
+                    }
+                    else
+                    {
+                        Pause_Click(PauseButton, null);
+                    }
+                }
+            });
+        }
+
+        private void ThumbNext_Click(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Next_Click(sender, null);
+            });
+        }
+
+        private void UpdateTaskbarThumbButton()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var taskbarItemInfo = this.TaskbarItemInfo;
+
+                if (taskbarItemInfo != null && taskbarItemInfo.ThumbButtonInfos.Count >= 2)
+                {
+                    var playPauseThumb = taskbarItemInfo.ThumbButtonInfos[1];
+
+                    if (PlayButton.Visibility == Visibility.Visible)
+                    {
+                        playPauseThumb.ImageSource = (BitmapImage)Resources["TaskBarButtonPlay"];
+                    }
+                    else
+                    {
+                        playPauseThumb.ImageSource = (BitmapImage)Resources["TaskBarButtonPause"];
+                    }
+                }
+            });
         }
 
     }

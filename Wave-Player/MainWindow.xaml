@@ -8,7 +8,30 @@
         Icon="/assets/favicon.ico"
         ResizeMode="CanResize">
 
-    
+    <Window.Resources>
+        <BitmapImage x:Key="TaskBarButtonPrev" UriSource="assets/Previous.png"/>
+        <BitmapImage x:Key="TaskBarButtonPlay" UriSource="assets/Play.png"/>
+        <BitmapImage x:Key="TaskBarButtonPause" UriSource="assets/Pause.png"/>
+        <BitmapImage x:Key="TaskBarButtonNext" UriSource="assets/Next.png"/>
+    </Window.Resources>
+
+
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo>
+            <TaskbarItemInfo.ThumbButtonInfos>
+                <ThumbButtonInfo ImageSource="{StaticResource TaskBarButtonPrev}"
+                             Description="Previous"
+                             Click="ThumbPrevious_Click"/>
+                <ThumbButtonInfo ImageSource="{StaticResource TaskBarButtonPlay}"
+                             Description="Play/Pause"
+                             Click="ThumbPlayPause_Click"/>
+                <ThumbButtonInfo ImageSource="{StaticResource TaskBarButtonNext}"
+                             Description="Next"
+                             Click="ThumbNext_Click"/>
+            </TaskbarItemInfo.ThumbButtonInfos>
+        </TaskbarItemInfo>
+    </Window.TaskbarItemInfo>
+
     
     <Grid>
         <Grid.RowDefinitions>
