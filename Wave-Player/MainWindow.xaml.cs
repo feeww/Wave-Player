@@ -249,7 +249,7 @@ namespace Wave_Player
             }
             else
             {
-                shuffleButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B3B3B3"));
+                shuffleButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
             }
         }
 
@@ -268,7 +268,7 @@ namespace Wave_Player
             }
             else
             {
-                repeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B3B3B3"));
+                repeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
             }
         }
 
@@ -588,7 +588,7 @@ namespace Wave_Player
             }
             else
             {
-                multiRepeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B3B3B3"));
+                multiRepeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
                 _multiRepeatTracks.Clear();
                 UpdateTrackListAppearance();
             }
@@ -661,14 +661,12 @@ namespace Wave_Player
                 try
                 {
                     _multiRepeatTracks = JsonSerializer.Deserialize<HashSet<int>>(System.IO.File.ReadAllText(_multiRepeatFilePath)) ?? new HashSet<int>();
+
+                    _isMultiRepeatEnabled = false;
+                    MultiRepeatButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E0E0E0"));
+
                     if (_multiRepeatTracks.Count > 0)
                     {
-                        _isMultiRepeatEnabled = true;
-                        MultiRepeatButton.Foreground = new LinearGradientBrush(
-                            (Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor),
-                            (Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor),
-                            new Point(0, 0),
-                            new Point(1, 1));
                         UpdateTrackListAppearance();
                     }
                 }
