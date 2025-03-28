@@ -10,8 +10,6 @@ namespace Wave_Player
         protected override void OnStartup(StartupEventArgs e)
         {
             SettingsC settings = SettingsC.Load();
-            Current.Resources["ThemePrimaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.Theme.PrimaryColor));
-            Application.Current.Resources["ThemeSecondaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.Theme.SecondaryColor));
         }
 
         protected override void OnExit(ExitEventArgs e)

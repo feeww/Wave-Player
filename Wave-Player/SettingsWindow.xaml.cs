@@ -8,6 +8,7 @@ using Wave_Player.classes;
 using Button = System.Windows.Controls.Button;
 using System.Windows.Controls;
 using Xceed.Wpf.Toolkit;
+using Wave_Player.classes.Managers;
 
 namespace Wave_Player
 {
@@ -20,12 +21,9 @@ namespace Wave_Player
             InitializeComponent();
             LoadSettings();
 
-            UpdateColorPickerBackground(PrimaryColorPicker, _settings.Theme.PrimaryColor);
-            UpdateColorPickerBackground(SecondaryColorPicker, _settings.Theme.SecondaryColor);
 
-
-            PrimaryColorTextBox.Text = _settings.Theme.PrimaryColor;
-            SecondaryColorTextBox.Text = _settings.Theme.SecondaryColor;
+            PrimaryColorTextBox.Text = "None";
+            SecondaryColorTextBox.Text = "None";
 
             ApplyThemeColors();
         }
@@ -52,32 +50,7 @@ namespace Wave_Player
             _settings.ShowNotifications = NotificationsCheckBox.IsChecked ?? false;
             _settings.DefaultMusicFolder = MusicFolderTextBox.Text;
             _settings.Save();
-        }
-
-        private void ColorPicker_Click(object sender, RoutedEventArgs e)
-        {
-            var button = (Button)sender;
-            var dialog = new System.Windows.Forms.ColorDialog();
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                var colorHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
-
-                if (button == PrimaryColorPicker)
-                {
-                    _settings.Theme.PrimaryColor = colorHex;
-                    PrimaryColorTextBox.Text = colorHex;
-                }
-                else
-                {
-                    _settings.Theme.SecondaryColor = colorHex;
-                    SecondaryColorTextBox.Text = colorHex;
-                }
-
-                UpdateColorPickerBackground(button, colorHex);
-                ApplyThemeColors();
-            }
-        }
+        }   
 
         private void UpdateColorPickerBackground(Button button, string colorHex)
         {
@@ -91,8 +64,8 @@ namespace Wave_Player
                 StartPoint = new Point(0, 0),
                 EndPoint = new Point(1, 1)
             };
-            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor), 0));
-            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor), 1));
+            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#FF5E3A"), 0));
+            gradientBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#FF5E3A"), 1));
 
             var modernSliderStyle = FindResource("ModernSlider") as Style;
             if (modernSliderStyle != null)
@@ -102,7 +75,7 @@ namespace Wave_Player
                 {
                     if (setter is Setter setterObj && setterObj.Property == Slider.ForegroundProperty)
                     {
-                        newStyle.Setters.Add(new Setter(Slider.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor))));
+                        newStyle.Setters.Add(new Setter(Slider.ForegroundProperty, new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5E3A"))));
                     }
                     else
                     {
@@ -116,9 +89,10 @@ namespace Wave_Player
             }
 
             System.Windows.Application.Current.Resources["ThemeGradient"] = gradientBrush;
-            System.Windows.Application.Current.Resources["ThemePrimaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.PrimaryColor));
-            System.Windows.Application.Current.Resources["ThemeSecondaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(_settings.Theme.SecondaryColor));
+            System.Windows.Application.Current.Resources["ThemePrimaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5E3A"));
+            System.Windows.Application.Current.Resources["ThemeSecondaryColor"] = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF5E3A"));
         }
+
 
         private static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
         {
@@ -163,38 +137,12 @@ namespace Wave_Player
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            string primaryColor = PrimaryColorTextBox.Text;
-            string secondaryColor = SecondaryColorTextBox.Text;
-
-            if (!string.IsNullOrEmpty(primaryColor) && !IsValidColor(primaryColor))
-            {
-                NotificationSystem.Show("Please select a valid primary color.", NotificationType.Error);
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(secondaryColor) && !IsValidColor(secondaryColor))
-            {
-                NotificationSystem.Show("Please select a valid secondary color.", NotificationType.Error);
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(primaryColor))
-            {
-                _settings.Theme.PrimaryColor = primaryColor;
-            }
-
-            if (!string.IsNullOrEmpty(secondaryColor))
-            {
-                _settings.Theme.SecondaryColor = secondaryColor;
-            }
-
             if (NotificationsCheckBox.IsChecked == true)
                 {NotificationSystem.Show("Settings applied successfully!", NotificationType.Success);}
             
             SaveSettings();
 
             var mainWindow = (MainWindow)Owner;
-            mainWindow.UpdateThemeColors(_settings.Theme.PrimaryColor, _settings.Theme.SecondaryColor);
 
             DialogResult = true;
             Close();

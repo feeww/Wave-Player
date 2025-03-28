@@ -6,7 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
-namespace Wave_Player.classes
+namespace Wave_Player.classes.Managers
 {
     public class NotificationSystem
     {
@@ -146,8 +146,8 @@ namespace Wave_Player.classes
                 _ => "ℹ",
             };
 
-            var primaryColor = Application.Current.Resources["PrimaryColor"];
-            var secondaryColor = Application.Current.Resources["SecondaryColor"];
+            var primaryColor = Application.Current.Resources["#E04B2E"];
+            var secondaryColor = Application.Current.Resources["FF5E3A"];
 
             LinearGradientBrush backgroundBrush = new LinearGradientBrush
             {
@@ -177,8 +177,8 @@ namespace Wave_Player.classes
             }
             else
             {
-                backgroundBrush.GradientStops.Add(new GradientStop((Color)primaryColor, 0.0));
-                backgroundBrush.GradientStops.Add(new GradientStop((Color)secondaryColor, 1.0));
+                backgroundBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#FF5E3A"), 0));
+                backgroundBrush.GradientStops.Add(new GradientStop((Color)ColorConverter.ConvertFromString("#FF5E3A"), 1));
                 iconBrush = backgroundBrush.Clone();
             }
 
@@ -241,7 +241,7 @@ namespace Wave_Player.classes
             _notificationWindow.Dispatcher.BeginInvoke(new Action(() =>
             {
                 UpdateNotificationWindowPosition();
-            }), System.Windows.Threading.DispatcherPriority.Render);
+            }), DispatcherPriority.Render);
 
             DoubleAnimation fadeInAnimation = new DoubleAnimation
             {

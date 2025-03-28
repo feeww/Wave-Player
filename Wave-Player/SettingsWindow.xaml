@@ -75,9 +75,7 @@
                                     x:Name="PrimaryColorPicker"
                                     Width="32"
                                     Height="32"
-                                    Margin="8,0,0,0"
-                                    
-                                    Click="ColorPicker_Click"/>
+                                    Margin="8,0,0,0"/>
                                 </Grid>
                             </StackPanel>
 
@@ -97,8 +95,7 @@
                                         x:Name="SecondaryColorPicker"
                                         Width="32"
                                         Height="32"
-                                        Margin="8,0,0,0"
-                                        Click="ColorPicker_Click"/>
+                                        Margin="8,0,0,0"/>
                                 </Grid>
                             </StackPanel>
                             

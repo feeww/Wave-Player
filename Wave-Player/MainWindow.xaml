@@ -1,20 +1,299 @@
 ﻿<Window x:Class="Wave_Player.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System.Windows;assembly=PresentationFramework"
         Title="Wave Player" Height="600" Width="900"
-        Background="#0A0A0A"
         WindowStyle="None"
         AllowsTransparency="True"
         Icon="/assets/favicon.ico"
         ResizeMode="CanResize">
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
         <BitmapImage x:Key="TaskBarButtonPrev" UriSource="assets/Previous.png"/>
         <BitmapImage x:Key="TaskBarButtonPlay" UriSource="assets/Play.png"/>
         <BitmapImage x:Key="TaskBarButtonPause" UriSource="assets/Pause.png"/>
         <BitmapImage x:Key="TaskBarButtonNext" UriSource="assets/Next.png"/>
-    </Window.Resources>
+        
+        <Style x:Key="WindowButton" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#DDDDDD"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderThickness="0"
+                                CornerRadius="20">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2E3244"/>
+                                <Setter Property="Foreground" Value="#FF5E3A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#363C52"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
+        <Storyboard x:Key="ButtonHoverAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                    From="0.8" To="1" Duration="0:0:0.2"/>
+            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                    From="1" To="1.05" Duration="0:0:0.2"/>
+            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                    From="1" To="1.05" Duration="0:0:0.2"/>
+        </Storyboard>
+
+        <Style x:Key="PlayerControlButton" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Background" Value="#232534"/>
+            <Setter Property="Foreground" Value="#DDDDDD"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="8,0"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="22"
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2E3244"/>
+                                <Setter Property="Foreground" Value="#FF5E3A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#363C52"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PlayButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="60"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Background" Value="#FF5E3A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="14,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="30"
+                                BorderThickness="0">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="3" BlurRadius="10" Color="#E04B2E" Opacity="0.5"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E04B2E"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D43920"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernSlider" TargetType="Slider">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Border Height="6" 
+                                    Background="#232534" 
+                                    CornerRadius="3"/>
+                            <Track Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" 
+                                                  Background="#FF5E3A" 
+                                                  BorderThickness="0" 
+                                                  Height="6" 
+                                                  Margin="0,0,0,0" 
+                                                  Style="{x:Null}" 
+                                                  Template="{DynamicResource SliderTrackRepeatButton}">
+                                        <RepeatButton.Effect>
+                                            <DropShadowEffect ShadowDepth="1" BlurRadius="3" Color="#FF5E3A" Opacity="0.3"/>
+                                        </RepeatButton.Effect>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" 
+                                                  Background="Transparent" 
+                                                  BorderThickness="0" 
+                                                  Height="6" 
+                                                  Margin="0,0,0,0" 
+                                                  Style="{x:Null}" 
+                                                  Template="{DynamicResource SliderTrackRepeatButton}"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Width="16" 
+                                           Height="16" 
+                                           Background="White" 
+                                           Template="{DynamicResource SliderThumbTemplate}"/>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ControlTemplate x:Key="SliderTrackRepeatButton" TargetType="RepeatButton">
+            <Border Background="{TemplateBinding Background}" 
+                    BorderThickness="0" 
+                    Height="{TemplateBinding Height}"
+                    CornerRadius="3"/>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="SliderThumbTemplate" TargetType="Thumb">
+            <Border Background="{TemplateBinding Background}" 
+                    CornerRadius="8" 
+                    BorderThickness="0">
+            </Border>
+        </ControlTemplate>
+
+        <Style x:Key="TrackListBoxStyle" TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="16,10"/>
+                        <Setter Property="Margin" Value="0,3"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="12" 
+                                            Padding="{TemplateBinding Padding}" 
+                                            BorderThickness="0">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#2E3244"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#3D3237"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SideButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Background" Value="#232534"/>
+            <Setter Property="Foreground" Value="#DDDDDD"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="12"
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2E3244"/>
+                                <Setter Property="Foreground" Value="#FF5E3A"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#363C52"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CustomSliderStyle" TargetType="Slider">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Border x:Name="TrackBackground" 
+                                Height="6" 
+                                Background="#232534" 
+                                CornerRadius="3"/>
+
+                            <Border x:Name="Progress" 
+                                Height="6" 
+                                Background="#FF5E3A" 
+                                CornerRadius="3"
+                                HorizontalAlignment="Left"/>
+
+                            <Thumb x:Name="Thumb" 
+                               Width="16" 
+                               Height="16" 
+                               Background="White" 
+                               Template="{StaticResource SliderThumbTemplate}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Thumb" Property="Background" Value="#FF5E3A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <ControlTemplate x:Key="SliderThumbTemplate1" TargetType="Thumb">
+            <Border Background="{TemplateBinding Background}" 
+                CornerRadius="8" 
+                BorderThickness="0">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="2" BlurRadius="5" Color="#FF5E3A" Opacity="0.5"/>
+                </Border.Effect>
+            </Border>
+        </ControlTemplate>
+    </Window.Resources>
 
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo>
@@ -32,183 +311,284 @@
         </TaskbarItemInfo>
     </Window.TaskbarItemInfo>
 
-    
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="32"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="100"/>
-        </Grid.RowDefinitions>
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#1A1C24" Offset="0"/>
+            <GradientStop Color="#222630" Offset="0.5"/>
+            <GradientStop Color="#232534" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Background>
 
-        <Grid Grid.Row="0" Background="#050505" MouseDown="TitleBar_MouseDown">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="12,0,0,0">
-                <Image Source="/assets/favicon.ico" Width="18" Height="18" Margin="0,0,8,0"/>
-                <TextBlock Text="Wave Player" Foreground="White" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                
-                <Button Style="{StaticResource WindowButton}" Content="─" Click="Minimize_Click"/>
-                <Button Style="{StaticResource WindowButton}" Content="□" Click="Maximize_Click"/>
-                <Button Style="{StaticResource WindowButton}" Content="×" Click="Close_Click"/>
-            </StackPanel>
-        </Grid>
-
-        <Grid Grid.Row="1" Background="#0A0A0A">
+    <Border CornerRadius="20" ClipToBounds="True">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="60"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="120"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Margin="24,24,24,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="My Music" FontSize="28" Foreground="White" FontWeight="Bold">
-                    <TextBlock.Effect>
-                        <DropShadowEffect ShadowDepth="2" BlurRadius="4" Opacity="0.2"/>
-                    </TextBlock.Effect>
-                </TextBlock>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Content="+" Style="{StaticResource PlayerControlButton}" Click="AddFiles_Click"/>
-                    <Button Content="🔀" Style="{StaticResource PlayerControlButton}" Click="Shuffle_Click" x:Name="ShuffleButton"/>
-                    <Button Content="🔁" Style="{StaticResource PlayerControlButton}" Click="Repeat_Click" x:Name="RepeatButton"/>
-                    <Button Content="🔂" Style="{StaticResource PlayerControlButton}" Click="MultiRepeat_Click" x:Name="MultiRepeatButton" ToolTip="Multi Repeat"/>
-                    <Button Content="⚙" Style="{StaticResource PlayerControlButton}" Click="Settings_Click"/>
+            <Border Grid.Row="0" 
+                    Grid.RowSpan="3" 
+                    Grid.Column="0" 
+                    Background="#191B22"
+                    BorderThickness="0,0,1,0"
+                    BorderBrush="#32364A">
+                <StackPanel Margin="0,70,0,0">
+                    <Button Content="🎵" 
+                            Style="{StaticResource SideButtonStyle}" 
+                            ToolTip="My Music"
+                            Background="#3D3237"
+                            Foreground="#FF5E3A"/>
+                    <Button Content="♥" 
+                            Style="{StaticResource SideButtonStyle}" 
+                            ToolTip="Favorites"/>
+                    <Button Content="⚙" 
+                            Style="{StaticResource SideButtonStyle}" 
+                            Click="Settings_Click" 
+                            ToolTip="Settings"/>
+                    <Button Content="+" 
+                            Style="{StaticResource SideButtonStyle}" 
+                            Click="AddFiles_Click" 
+                            ToolTip="Add Files"/>
                 </StackPanel>
-            </Grid>
+            </Border>
 
-            <ListBox Name="TrackList" 
-                     Grid.Row="1" 
-                     Margin="24,8,24,24" 
-                     Style="{StaticResource TrackListBoxStyle}"
-                     SelectionChanged="TrackList_SelectionChanged"
-                     MouseDoubleClick="TrackList_MouseDoubleClick"
-/>
-        </Grid>
-
-        <Border Grid.Row="2" Background="#181818" BorderThickness="0,1,0,0" BorderBrush="#333333">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="24,18,24,18" VerticalAlignment="Center">
-                    <Border Width="64" Height="64" CornerRadius="12" Margin="0,0,16,0">
-                        <Border.Background>
-                            <ImageBrush x:Name="AlbumCoverImage" Stretch="UniformToFill"/>
-                        </Border.Background>
-                        <Border.Effect>
-                            <DropShadowEffect ShadowDepth="3" BlurRadius="6" Opacity="0.3"/>
-                        </Border.Effect>
-                    </Border>
-
-
-                    <StackPanel VerticalAlignment="Center">
-
-
-                        <Border Width="150" Height="24" Background="#181818" Padding="1">
-                            <TextBlock x:Name="CurrentTrackName"
-               Text="No track selected"
-               Foreground="White"
-               FontSize="16"
-               FontWeight="SemiBold"
-               TextTrimming="CharacterEllipsis"
-               VerticalAlignment="Center"
-               HorizontalAlignment="Center"
-               Width="140"/>
-                        </Border>
-
-
+            <Border Grid.Row="0" 
+                    Grid.Column="1"
+                    MouseDown="TitleBar_MouseDown">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="24,0,0,0" VerticalAlignment="Center">
+                        <Image Source="/assets/favicon.ico" Width="22" Height="22" Margin="0,0,12,0"/>
+                        <TextBlock Text="Wave Player" Foreground="White" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                </StackPanel>
-
-                <Grid Grid.Column="1" VerticalAlignment="Center">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Grid.Row="0" 
-                      Orientation="Horizontal" 
-                      HorizontalAlignment="Center" 
-                      Margin="0,0,0,8">
-                        <Button Content="⏮" 
-                        Style="{StaticResource PlayerControlButton}" 
-                        Click="Previous_Click"/>
-                        <Button x:Name="PlayButton" 
-                        Content="▶" 
-                        Style="{StaticResource PlayButtonStyle}" 
-                        Click="Play_Click"/>
-                        <Button x:Name="PauseButton" 
-                        Content="⏸" 
-                        Style="{StaticResource PlayButtonStyle}" 
-                        Click="Pause_Click" 
-                        Visibility="Collapsed"/>
-                        <Button Content="⏭" 
-                        Style="{StaticResource PlayerControlButton}" 
-                        Click="Next_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <Button Style="{StaticResource WindowButton}" Content="─" Click="Minimize_Click"/>
+                        <Button Style="{StaticResource WindowButton}" Content="□" Click="Maximize_Click"/>
+                        <Button Style="{StaticResource WindowButton}" Content="×" Click="Close_Click"/>
                     </StackPanel>
+                </Grid>
+            </Border>
 
-                    <Grid Grid.Row="1" Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+            <Grid Grid.Row="1" Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                        <TextBlock x:Name="CurrentTime" 
-                         Text="0:00" 
-                         Foreground="#808080" 
-                         FontSize="12" 
-                         Grid.Column="0" 
-                         Margin="0,0,8,0"
-                         VerticalAlignment="Center"/>
+                <Grid Grid.Row="0" Margin="24,12,24,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                        <Slider x:Name="ProgressBar" 
-                       Grid.Column="1" 
-                       Width="330"
-                       Style="{StaticResource ModernSlider}"
-                       PreviewMouseDown="ProgressBar_PreviewMouseDown"
-                       PreviewMouseUp="ProgressBar_PreviewMouseUp"
-                       VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="My Music" FontSize="32" Foreground="White" FontWeight="Bold">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="5" Color="#FF5E3A" Opacity="0.3"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
 
-                        <TextBlock x:Name="TotalTime" 
-                         Text="0:00" 
-                         Foreground="#808080" 
-                         FontSize="12" 
-                         Grid.Column="2" 
-                         Margin="8,0,0,0"
-                         VerticalAlignment="Center"/>
-                    </Grid>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox Width="220" 
+                                 Height="40" 
+                                 Margin="0,0,16,0"
+                                 Background="#232534"
+                                 Foreground="#DDDDDD"
+                                 BorderThickness="0"
+                                 Padding="12,0"
+                                 VerticalContentAlignment="Center"
+                                 FontSize="14">
+                            <TextBox.Resources>
+                                <Style TargetType="{x:Type Border}">
+                                    <Setter Property="CornerRadius" Value="20"/>
+                                </Style>
+                            </TextBox.Resources>
+                            <TextBox.Template>
+                                <ControlTemplate TargetType="{x:Type TextBoxBase}">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="20"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            BorderBrush="{TemplateBinding BorderBrush}">
+                                        <Grid>
+                                            <TextBlock Text="Search..." 
+                                                       Foreground="#777788" 
+                                                       Margin="12,0,0,0" 
+                                                       VerticalAlignment="Center" 
+                                                       Visibility="{Binding Text.IsEmpty, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            <ScrollViewer x:Name="PART_ContentHost" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </TextBox.Template>
+                        </TextBox>
+                        <Button Content="🔀" 
+                                Style="{StaticResource PlayerControlButton}" 
+                                Click="Shuffle_Click" 
+                                x:Name="ShuffleButton" 
+                                ToolTip="Shuffle"/>
+                        <Button Content="🔁" 
+                                Style="{StaticResource PlayerControlButton}" 
+                                Click="Repeat_Click" 
+                                x:Name="RepeatButton" 
+                                ToolTip="Repeat"/>
+                        <Button Content="🔂" 
+                                Style="{StaticResource PlayerControlButton}" 
+                                Click="MultiRepeat_Click" 
+                                x:Name="MultiRepeatButton" 
+                                ToolTip="Multi Repeat"/>
+                    </StackPanel>
                 </Grid>
 
-                <StackPanel Grid.Column="2" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right" 
-                    VerticalAlignment="Center"
-                    Margin="24,12,24,0">
-                    <Button x:Name="MuteButton"
-                    Content="🔊" 
-                    Style="{StaticResource PlayerControlButton}"
-                    Click="Mute_Click"/>
-                    <Slider x:Name="VolumeSlider" 
-                   Width="100" 
-                   Style="{StaticResource ModernSlider}" 
-                   Value="100"
-                   ValueChanged="VolumeSlider_ValueChanged"
-                   PreviewMouseDown="VolumeSlider_PreviewMouseDown"
-                   PreviewMouseUp="VolumeSlider_PreviewMouseUp"
-                   Margin="8,0"
-                   VerticalAlignment="Center"/>
-                </StackPanel>
+                <Border Grid.Row="1" 
+                        Margin="24,8,24,24" 
+                        Background="#1E2028" 
+                        CornerRadius="16" 
+                        BorderThickness="1" 
+                        BorderBrush="#32364A">
+                    <Border.Effect>
+                        <DropShadowEffect ShadowDepth="6" BlurRadius="12" Color="#121320" Opacity="0.3"/>
+                    </Border.Effect>
+                    <ListBox Name="TrackList" 
+                             Margin="8"
+                             Style="{StaticResource TrackListBoxStyle}"
+                             SelectionChanged="TrackList_SelectionChanged"
+                             MouseDoubleClick="TrackList_MouseDoubleClick"/>
+                </Border>
             </Grid>
-        </Border>
 
-        <MediaElement Name="MediaPlayer" LoadedBehavior="Manual" MediaEnded="MediaPlayer_MediaEnded"/>
-    </Grid>
+            <Border Grid.Row="2" 
+                    Grid.Column="1" 
+                    BorderThickness="0,1,0,0" 
+                    BorderBrush="#32364A">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#1D1E28" Offset="0"/>
+                        <GradientStop Color="#222432" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="15,18,0,18" VerticalAlignment="Center">
+                        <Border Width="72" Height="72" CornerRadius="12" Margin="0,0,14,0">
+                            <Border.Background>
+                                <ImageBrush x:Name="AlbumCoverImage" Stretch="UniformToFill"/>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="4" BlurRadius="10" Color="#121320" Opacity="0.5"/>
+                            </Border.Effect>
+                        </Border>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="CurrentTrackName"
+                                       Text="No track selected"
+                                       Foreground="White"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis"
+                                       Width="150"/>
+                            <TextBlock x:Name="ArtistName"
+                                       Text="Unknown artist"
+                                       Foreground="#A5A9B0"
+                                       FontSize="14"
+                                       TextTrimming="CharacterEllipsis"
+                                       Width="150"
+                                       Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" 
+                                    Orientation="Horizontal" 
+                                    HorizontalAlignment="Center" 
+                                    Margin="0,0,0,14">
+                            <Button Content="⏮" 
+                                    Style="{StaticResource PlayerControlButton}" 
+                                    Click="Previous_Click"/>
+                            <Button x:Name="PlayButton" 
+                                    Content="▶" 
+                                    Style="{StaticResource PlayButtonStyle}" 
+                                    Click="Play_Click"/>
+                            <Button x:Name="PauseButton" 
+                                    Content="⏸" 
+                                    Style="{StaticResource PlayButtonStyle}" 
+                                    Click="Pause_Click" 
+                                    Visibility="Collapsed"/>
+                            <Button Content="⏭" 
+                                    Style="{StaticResource PlayerControlButton}" 
+                                    Click="Next_Click"/>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1" Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock x:Name="CurrentTime" 
+                                       Text="0:00" 
+                                       Foreground="#B8BCC5" 
+                                       FontSize="13" 
+                                       Grid.Column="0" 
+                                       Margin="0,0,12,0"
+                                       VerticalAlignment="Center"/>
+
+                            <Slider x:Name="ProgressBar" 
+                                    Grid.Column="1" 
+                                    Width="250"
+                                    Style="{StaticResource ModernSlider}"
+                                    PreviewMouseDown="ProgressBar_PreviewMouseDown"
+                                    PreviewMouseUp="ProgressBar_PreviewMouseUp"
+                                    VerticalAlignment="Center"/>
+
+                            <TextBlock x:Name="TotalTime" 
+                                       Text="0:00" 
+                                       Foreground="#B8BCC5" 
+                                       FontSize="13" 
+                                       Grid.Column="2" 
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Grid>
+
+                    <StackPanel Grid.Column="2" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right" 
+                                VerticalAlignment="Center"
+                                Margin="0,12,24,0">
+                        <Button x:Name="MuteButton"
+                                Content="🔊" 
+                                Style="{StaticResource PlayerControlButton}"
+                                Click="Mute_Click"
+                                Margin="10,0,0,0"/>
+                        <Slider x:Name="VolumeSlider" 
+                                Width="100" 
+                                Style="{StaticResource ModernSlider}" 
+                                Value="10"
+                                ValueChanged="VolumeSlider_ValueChanged"
+                                PreviewMouseDown="VolumeSlider_PreviewMouseDown"
+                                PreviewMouseUp="VolumeSlider_PreviewMouseUp"
+                                Margin="8,0,12,0"
+                                VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <MediaElement Name="MediaPlayer" LoadedBehavior="Manual" MediaEnded="MediaPlayer_MediaEnded"/>
+        </Grid>
+    </Border>
 </Window>

@@ -15,7 +15,6 @@ namespace Wave_Player.classes
         public bool AutoShuffle { get; set; } = false;
         public bool ShowNotifications { get; set; } = true;
         public string DefaultMusicFolder { get; set; } = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-        public ThemeSettings Theme { get; set; } = new ThemeSettings();
         public string AlbumCoverImagePath { get; set; }
 
 
@@ -30,15 +29,6 @@ namespace Wave_Player.classes
                     string json = File.ReadAllText(SettingsFilePath);
                     var settings = JsonSerializer.Deserialize<SettingsC>(json) ?? new SettingsC();
 
-                    if (!IsValidColor(settings.Theme.PrimaryColor))
-                    {
-                        settings.Theme.PrimaryColor = "#00D1FF";
-                    }
-                    if (!IsValidColor(settings.Theme.SecondaryColor))
-                    {
-                        settings.Theme.SecondaryColor = "#0080FF";
-                    }
-
                     return settings;
                 }
                 catch (Exception)
@@ -48,20 +38,6 @@ namespace Wave_Player.classes
             }
             return new SettingsC();
         }
-
-        private static bool IsValidColor(string color)
-        {
-            try
-            {
-                ColorConverter.ConvertFromString(color);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
 
         public void Save()
         {
